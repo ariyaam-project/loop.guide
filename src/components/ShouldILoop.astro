@@ -48,7 +48,7 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
 </div>
 
 <script>
-  type Verdict = "loop" | "single" | "chain" | "borderline";
+  type Verdict = "loop" | "single" | "chain" | "borderline" | "rejected";
   const LABEL: Record<Verdict, string> = { loop: "LOOP", single: "SINGLE PROMPT", chain: "CHAIN", borderline: "BORDERLINE" };
   const CLS: Record<Verdict, string> = { loop: "v-loop", single: "v-single", chain: "v-chain", borderline: "v-borderline" };
 
@@ -83,15 +83,21 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
     async function analyze() {
       const task = taskEl.value.trim();
       if (!task) { resultEl.innerHTML = '<p class="dim">Type a task first.</p>'; return; }
-      resultEl.innerHTML = '<p class="skeleton">Analyzing the loop…</p>';
+      resultEl.innerHTML = '<p class="skeleton">Analyzing…</p>';
       try {
         const res = await fetch("/api/should-i-loop", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ task, signals: collectSignals() }),
         });
+        const d = await res.json();
+        if (res.status === 422 || d.verdict === "rejected") {
+          const reason = d.reasons?.[0] ?? "That doesn't look like an AI automation task.";
+          resultEl.innerHTML = `<p style="color:var(--color-dim,#888);margin:0;"><strong>Not an AI task.</strong> ${esc(reason)}<br><span style="font-size:0.85rem;">Describe what you want an AI agent to <em>do</em> — e.g. fix tests, monitor a feed, process documents.</span></p>`;
+          return;
+        }
         if (!res.ok) throw new Error("bad status");
-        render(await res.json());
+        render(d);
       } catch {
         resultEl.innerHTML =
           '<p class="dim">Couldn\'t reach the analyzer endpoint (this happens on a pure static preview). ' +
