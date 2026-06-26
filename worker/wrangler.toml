@@ -1,0 +1,15 @@
+name = "loop-guide-classifier"
+main = "src/index.ts"
+compatibility_date = "2025-02-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+# For production, set secrets with wrangler (never commit them):
+#
+#   wrangler secret put OPENAI_API_KEY --config worker/wrangler.toml
+#
+# Optional: override the model (default: gpt-4o-mini)
+#   wrangler secret put OPENAI_MODEL --config worker/wrangler.toml
+#
+# For local dev, copy .dev.vars.example → .dev.vars and fill in your key.
+# wrangler dev picks up .dev.vars automatically.
