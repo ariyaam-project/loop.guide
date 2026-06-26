@@ -104,6 +104,32 @@ async function refineWithLLM(
     }
   }
 
+  // Provider C: OpenAI API key
+  if (!raw && env.OPENAI_API_KEY) {
+    const model = env.OPENAI_MODEL || "gpt-4o-mini";
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 400,
+        temperature: 0.2,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: sys },
+          { role: "user", content: user },
+        ],
+      }),
+    });
+    if (res.ok) {
+      const data: any = await res.json();
+      raw = data?.choices?.[0]?.message?.content ?? null;
+    }
+  }
+
   if (!raw) return null;
 
   const parsed = safeJson(raw);
