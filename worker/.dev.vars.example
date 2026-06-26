@@ -1,0 +1,9 @@
+# Copy this file to .dev.vars (it is gitignored) for local development.
+# Run the worker locally with: npm run worker:dev
+#
+# Without OPENAI_API_KEY the worker still works — it returns the heuristic result.
+
+OPENAI_API_KEY=sk-...
+
+# Uncomment to use a different model (default: gpt-4o-mini)
+# OPENAI_MODEL=gpt-4o
