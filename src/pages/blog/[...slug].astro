@@ -1,0 +1,37 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.pubDate.toISOString(),
+  ...(post.data.updatedDate ? { dateModified: post.data.updatedDate.toISOString() } : {}),
+};
+---
+<BaseLayout title={post.data.title} description={post.data.description} jsonLd={jsonLd}>
+  <article class="container prose" style="padding-top:2.5rem;">
+    <p><a href="/blog">← All posts</a></p>
+    <h1>{post.data.title}</h1>
+    <p class="dim mono" style="font-size:0.85rem;">
+      {fmt(post.data.pubDate)}{post.data.updatedDate && ` · updated ${fmt(post.data.updatedDate)}`}
+    </p>
+    <Content />
+    <div class="card" style="margin-top:2.5rem;background:var(--bg-soft);">
+      <strong>Was this useful?</strong>
+      <p class="dim" style="margin:0.4rem 0 0.8rem;">Put it into practice — describe your task and get a verdict.</p>
+      <a class="btn btn-primary" href="/should-i-loop">Try “Should I Loop?”</a>
+    </div>
+  </article>
+</BaseLayout>

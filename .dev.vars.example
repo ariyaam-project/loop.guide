@@ -1,0 +1,8 @@
+# Copy to .dev.vars for local dev (never commit .dev.vars).
+# All optional — the "Should I Loop?" tool runs on its heuristic without any key.
+
+# Option A: Anthropic-hosted refinement
+# ANTHROPIC_API_KEY=sk-ant-...
+# ANTHROPIC_MODEL=claude-3-5-haiku-latest
+
+# Option B: Cloudflare Workers AI (enable the "ai" binding in wrangler.jsonc instead)

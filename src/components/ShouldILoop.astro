@@ -1,0 +1,136 @@
+---
+// Self-contained "Should I Loop?" island. Posts to /api/should-i-loop,
+// gracefully degrades if the endpoint is unreachable (e.g. pure static preview).
+interface Props { compact?: boolean }
+const { compact = false } = Astro.props;
+const id = "sil-" + Math.random().toString(36).slice(2, 8);
+---
+<div class="sil" data-sil={id}>
+  <div class={compact ? "" : "tool-grid"}>
+    <div class="panel">
+      <label for={`${id}-task`} style="font-weight:600;display:block;margin-bottom:0.5rem;">
+        Describe the task you want the AI to do
+      </label>
+      <textarea id={`${id}-task`} class="task" data-task
+        placeholder="e.g. Fix the failing tests in this module and keep going until they all pass"></textarea>
+
+      <div class="examples" data-examples>
+        <button type="button" class="chip" data-ex="Translate this paragraph into French.">single-prompt example</button>
+        <button type="button" class="chip" data-ex="First scaffold the API, then add auth, then write the README — in order.">chain example</button>
+        <button type="button" class="chip" data-ex="Fix the failing tests in this repo and keep iterating until they all pass.">loop example</button>
+      </div>
+
+      {!compact && (
+        <div class="signals" data-signals>
+          <label><input type="checkbox" data-sig="needsVerification" /> It needs to run / verify its own output (tests, checks)</label>
+          <label><input type="checkbox" data-sig="multiStep" /> Multiple steps where later steps depend on earlier results</label>
+          <label><input type="checkbox" data-sig="externalFeedback" /> There's real feedback to react to (errors, data, API)</label>
+          <label><input type="checkbox" data-sig="deterministicSingle" /> It's one deterministic transform / a single answer</label>
+          <label><input type="checkbox" data-sig="ambiguity" /> Ambiguous — likely needs human judgment</label>
+        </div>
+      )}
+
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;">
+        <button type="button" class="btn btn-primary" data-analyze>Analyze</button>
+        <button type="button" class="btn" data-clear>Clear</button>
+      </div>
+    </div>
+
+    <div class="panel" data-result aria-live="polite">
+      <p class="dim">Describe a task and hit <strong>Analyze</strong>. You'll get a verdict, why, and the pattern to use.</p>
+    </div>
+  </div>
+  {!compact && (
+    <p class="dim" style="font-size:0.82rem;margin-top:0.75rem;">
+      Heuristic by default; sharper with an LLM when configured. Inputs aren't stored.
+    </p>
+  )}
+</div>
+
+<script>
+  type Verdict = "loop" | "single" | "chain" | "borderline";
+  const LABEL: Record<Verdict, string> = { loop: "LOOP", single: "SINGLE PROMPT", chain: "CHAIN", borderline: "BORDERLINE" };
+  const CLS: Record<Verdict, string> = { loop: "v-loop", single: "v-single", chain: "v-chain", borderline: "v-borderline" };
+
+  function esc(s: string) {
+    return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
+  }
+
+  document.querySelectorAll<HTMLElement>(".sil").forEach((root) => {
+    const taskEl = root.querySelector<HTMLTextAreaElement>("[data-task]")!;
+    const resultEl = root.querySelector<HTMLElement>("[data-result]")!;
+    const analyzeBtn = root.querySelector<HTMLButtonElement>("[data-analyze]")!;
+    const clearBtn = root.querySelector<HTMLButtonElement>("[data-clear]")!;
+
+    root.querySelectorAll<HTMLButtonElement>("[data-ex]").forEach((chip) => {
+      chip.addEventListener("click", () => { taskEl.value = chip.dataset.ex || ""; taskEl.focus(); });
+    });
+
+    clearBtn.addEventListener("click", () => {
+      taskEl.value = "";
+      root.querySelectorAll<HTMLInputElement>("[data-sig]").forEach((c) => (c.checked = false));
+      resultEl.innerHTML = '<p class="dim">Cleared. Describe a task and hit <strong>Analyze</strong>.</p>';
+    });
+
+    function collectSignals() {
+      const sig: Record<string, boolean> = {};
+      root.querySelectorAll<HTMLInputElement>("[data-sig]").forEach((c) => {
+        if (c.checked) sig[c.dataset.sig!] = true;
+      });
+      return sig;
+    }
+
+    async function analyze() {
+      const task = taskEl.value.trim();
+      if (!task) { resultEl.innerHTML = '<p class="dim">Type a task first.</p>'; return; }
+      resultEl.innerHTML = '<p class="skeleton">Analyzing the loop…</p>';
+      try {
+        const res = await fetch("/api/should-i-loop", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ task, signals: collectSignals() }),
+        });
+        if (!res.ok) throw new Error("bad status");
+        render(await res.json());
+      } catch {
+        resultEl.innerHTML =
+          '<p class="dim">Couldn\'t reach the analyzer endpoint (this happens on a pure static preview). ' +
+          'Run <code>npm run dev</code> or deploy to Cloudflare and it works.</p>';
+      }
+    }
+
+    function render(d: any) {
+      const v = (d.verdict as Verdict) || "borderline";
+      const reasons = (d.reasons || []).map((r: string) => `<li>${esc(r)}</li>`).join("");
+      const checklist = (d.checklist || []).map((c: string) => `<li>${esc(c)}</li>`).join("");
+      resultEl.innerHTML = `
+        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+          <span class="verdict-badge ${CLS[v]}">${LABEL[v]}</span>
+          <span class="dim mono" style="font-size:0.85rem;">${d.confidence}% confidence · ${d.source}</span>
+        </div>
+        <div class="confidence-track"><div class="confidence-fill" style="width:${d.confidence}%"></div></div>
+        <h3 style="margin:0.75rem 0 0.25rem;">Why</h3>
+        <ul class="reasons">${reasons}</ul>
+        <h3 style="margin:1rem 0 0.25rem;">Recommended pattern</h3>
+        <p style="margin:0 0 0.4rem;"><a href="${d.pattern.href}"><strong>${esc(d.pattern.name)}</strong></a> — ${esc(d.pattern.tagline)}</p>
+        <details>
+          <summary class="dim" style="cursor:pointer;font-size:0.9rem;">Starter checklist</summary>
+          <ul class="reasons">${checklist}</ul>
+        </details>
+        <button type="button" class="btn" data-copy style="margin-top:0.75rem;font-size:0.85rem;">Copy result</button>
+      `;
+      const copyBtn = resultEl.querySelector<HTMLButtonElement>("[data-copy]");
+      copyBtn?.addEventListener("click", () => {
+        const text = `Should I Loop? → ${LABEL[v]} (${d.confidence}%)\nWhy: ${(d.reasons||[]).join(" ")}\nPattern: ${d.pattern.name} — ${d.pattern.tagline}\nvia loop.guide`;
+        navigator.clipboard?.writeText(text);
+        copyBtn.textContent = "Copied ✓";
+        setTimeout(() => (copyBtn.textContent = "Copy result"), 1500);
+      });
+    }
+
+    analyzeBtn.addEventListener("click", analyze);
+    taskEl.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") analyze();
+    });
+  });
+</script>

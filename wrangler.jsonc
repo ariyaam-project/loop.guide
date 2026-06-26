@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "loop-guide",
+  "compatibility_date": "2025-02-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "./dist",
+
+  // OPTIONAL — uncomment to enable the LLM refinement layer via Cloudflare Workers AI.
+  // The tool works without this (heuristic fallback). See src/pages/api/should-i-loop.ts.
+  // "ai": { "binding": "AI" }
+
+  // To use Anthropic instead, set a secret:
+  //   wrangler pages secret put ANTHROPIC_API_KEY
+}

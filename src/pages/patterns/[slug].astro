@@ -1,0 +1,51 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { PATTERNS, getPattern, type PatternSlug } from "../../lib/patterns";
+
+export function getStaticPaths() {
+  return PATTERNS.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const p = getPattern(slug as PatternSlug);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: p.name,
+  description: p.tagline,
+  step: p.anatomy.map((s, i) => ({ "@type": "HowToStep", position: i + 1, name: s })),
+};
+---
+<BaseLayout title={p.name} description={p.tagline} jsonLd={jsonLd}>
+  <article class="container prose" style="padding-top:2.5rem;">
+    <p><a href="/patterns">← All patterns</a></p>
+    <h1>{p.name}</h1>
+    <p class="lead">{p.tagline}</p>
+    <p>
+      <span class="tag">{p.cost} cost</span>
+      <span class="tag">{p.risk} risk</span>
+    </p>
+
+    <h2>When to use it</h2>
+    <ul>{p.whenToUse.map((x) => <li>{x}</li>)}</ul>
+
+    <h2>When NOT to use it</h2>
+    <ul>{p.whenNotToUse.map((x) => <li>{x}</li>)}</ul>
+
+    <h2>Anatomy</h2>
+    <pre><code>{p.anatomy.join("  →  ")}</code></pre>
+
+    <h2>Watch-outs</h2>
+    <ul>{p.watchOuts.map((x) => <li>{x}</li>)}</ul>
+
+    <h2>Starter checklist</h2>
+    <ul>{p.starter.map((x) => <li>{x}</li>)}</ul>
+
+    <div class="card" style="margin-top:2rem;background:var(--bg-soft);">
+      <strong>Not sure this is the right loop?</strong>
+      <p class="dim" style="margin:0.4rem 0 0.8rem;">Describe your task and let the tool recommend a pattern.</p>
+      <a class="btn btn-primary" href="/should-i-loop">Try “Should I Loop?”</a>
+    </div>
+  </article>
+</BaseLayout>

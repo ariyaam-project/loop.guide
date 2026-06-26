@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { PATTERNS } from "../../lib/patterns";
+---
+<BaseLayout
+  title="Loop Patterns"
+  description="The seven core loop-engineering patterns: retry, plan-execute-verify, explore-narrow, human-in-the-loop, verification, event-driven, and hill-climbing."
+>
+  <section class="container" style="padding-top:2.5rem;">
+    <h1>Loop patterns</h1>
+    <p class="lead">Seven patterns that cover almost every agent loop. Each says when to use it, when not to, and how to start.</p>
+    <div class="grid grid-2" style="margin-top:1.5rem;">
+      {PATTERNS.map((p) => (
+        <a class="card" href={`/patterns/${p.slug}`}>
+          <div style="display:flex;justify-content:space-between;gap:0.5rem;align-items:center;">
+            <strong>{p.name}</strong>
+            <span>
+              <span class="tag">{p.cost} cost</span>
+              <span class="tag">{p.risk} risk</span>
+            </span>
+          </div>
+          <p class="dim" style="margin:0.6rem 0 0;">{p.tagline}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

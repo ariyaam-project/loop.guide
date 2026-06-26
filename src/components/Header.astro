@@ -1,0 +1,29 @@
+---
+import { NAV } from "../consts";
+const path = Astro.url.pathname;
+---
+<header class="site-header">
+  <div class="container inner">
+    <a href="/" class="brand">loop<span class="dot">.</span>guide</a>
+    <nav class="nav">
+      {NAV.map((item) => (
+        <a href={item.href} class={path.startsWith(item.href) ? "hide-sm active" : "hide-sm"}>{item.label}</a>
+      ))}
+      <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">◐</button>
+    </nav>
+  </div>
+</header>
+<script is:inline>
+  (function () {
+    const key = "loopguide-theme";
+    const root = document.documentElement;
+    const saved = localStorage.getItem(key);
+    if (saved) root.setAttribute("data-theme", saved);
+    const btn = document.getElementById("theme-toggle");
+    btn && btn.addEventListener("click", function () {
+      const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      localStorage.setItem(key, next);
+    });
+  })();
+</script>
