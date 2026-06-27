@@ -46,7 +46,8 @@ test("Should I Loop? uses Workers AI with the classifier prompt", async () => {
   assert.equal(call.model, "@cf/openai/gpt-oss-20b");
   assert.equal(call.input.response_format.type, "json_schema");
   assert.match(call.input.messages[0].content, /Loop Advisor/);
-  assert.match(call.input.messages[1].content, /HEURISTIC PRE-ANALYSIS/);
+  assert.match(call.input.messages[1].content, /WEBSITE FIRST GUESS/);
+  assert.doesNotMatch(call.input.messages[1].content, /signals|HEURISTIC PRE-ANALYSIS/);
 });
 
 test("Should I Loop? falls back to the heuristic if Workers AI fails", async () => {

@@ -58,7 +58,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 // Optional GET for quick manual testing in the browser.
 export const GET: APIRoute = async ({ url }) => {
   const task = url.searchParams.get("task") ?? "";
-  if (!task) return json({ ok: true, usage: "POST { task, signals? } or GET ?task=..." });
+  if (!task) return json({ ok: true, usage: "POST { task } or GET ?task=..." });
   return json(analyze({ task }));
 };
 
@@ -79,9 +79,12 @@ async function refineWithLLM(
   const sys = [
     "You are Loop Advisor, a plain-language guide for deciding how an AI task should run.",
     "Your only job is to decide whether a task needs one prompt, fixed steps, or a loop.",
-    "Write for a non-technical person. Use simple everyday words.",
-    "Do not mention internal terms like heuristic, pre-analysis, signals, patternSlug, deterministic, LLM, confidence score, or model architecture.",
-    "Do not put patternSlug or any JSON field name inside the reasons array.",
+    "Write for a beginner who may not know engineering terms.",
+    "Sound like a helpful person, not a technical report.",
+    "Use short everyday words: try, check, result, step, approve, repeat.",
+    "Avoid technical words such as heuristic, pre-analysis, signal, deterministic, non-iterative, iterative, runtime, validator, orchestration, LLM, confidence score, model architecture, MCP, and patternSlug.",
+    "Do not mention JSON field names inside the reasons array.",
+    "Reasons should explain the practical choice, not the classifier logic.",
     "Reject anything that is not a task someone wants an AI to do.",
     "",
     "Verdicts:",
@@ -104,23 +107,24 @@ async function refineWithLLM(
     "hill-climbing: use past runs to improve the setup over time.",
     "",
     "Confidence scale:",
-    "90-100 means crystal clear.",
-    "70-89 means strong signal with minor uncertainty.",
-    "50-69 means moderate confidence.",
-    "30-49 means weak signal.",
+    "90-100 means very clear.",
+    "70-89 means mostly clear.",
+    "50-69 means somewhat clear.",
+    "30-49 means unclear.",
     "Cap borderline at 58. Use the full range instead of clustering around 80.",
     "",
     "Output only raw JSON with this shape:",
-    '{"verdict":"loop|single|chain|borderline|rejected","confidence":0-100,"reasons":["2-4 very short plain-English sentences"],"patternSlug":"required unless rejected"}',
-    "Each reason must be under 16 words.",
+    '{"verdict":"loop|single|chain|borderline|rejected","confidence":0-100,"reasons":["1-3 very short plain-English sentences"],"patternSlug":"required unless rejected"}',
+    "Each reason must be under 12 words.",
+    "Do not use bullets, labels, semicolons, or parentheses in reasons.",
     "For rejected, omit patternSlug, set confidence to at least 95, and explain why the input is not an AI automation task.",
   ].join("\n");
-  const user = `TASK:\n${task}\n\nHEURISTIC PRE-ANALYSIS:\n${JSON.stringify(
+  const user = `TASK:\n${task}\n\nWEBSITE FIRST GUESS:\n${JSON.stringify(
     {
       verdict: base.verdict,
       confidence: base.confidence,
-      patternSlug: base.pattern.slug,
-      signals: base.signals,
+      suggestedPattern: base.pattern.slug,
+      clues: plainCluesFromBase(base),
     },
     null,
     2,
@@ -248,6 +252,22 @@ async function refineWithLLM(
   };
 }
 
+function plainCluesFromBase(base: AnalyzeResult): string[] {
+  const clues: string[] = [];
+  const s = base.signals;
+
+  if (s.deterministicSingle) clues.push("This looks like one clear answer.");
+  if (s.multiStep) clues.push("The task has more than one step.");
+  if (s.needsVerification) clues.push("The AI may need to check its work.");
+  if (s.externalFeedback) clues.push("The AI may see new results after it acts.");
+  if (s.iteration) clues.push("The task asks the AI to keep trying.");
+  if (s.scheduled) clues.push("The task may run again later.");
+  if (s.risky || s.ambiguity) clues.push("A person may need to approve something.");
+  if (s.improvement) clues.push("The setup may improve over repeated runs.");
+
+  return clues.slice(0, 5);
+}
+
 function buildResponseSchema(patternSlugs: string[]) {
   return {
     type: "object",
@@ -277,7 +297,7 @@ function buildResponseSchema(patternSlugs: string[]) {
 }
 
 function cleanModelReasons(reasons: string[], verdict: string, base: AnalyzeResult): string[] {
-  const blocked = /\b(patternslug|pre-analysis|heuristic|signals?|deterministic|non-iterative|iterative process|llm|confidence|discrepancy|nuanced|classification|verdict|architecture)\b/i;
+  const blocked = /\b(patternslug|pre-analysis|heuristic|signals?|deterministic|non-iterative|iterative process|llm|confidence|discrepancy|nuanced|classification|verdict|architecture|runtime|validator|orchestration|mcp)\b/i;
   const cleaned = reasons
     .map((reason) =>
       reason

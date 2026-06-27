@@ -6,42 +6,44 @@ const { compact = false } = Astro.props;
 const id = "sil-" + Math.random().toString(36).slice(2, 8);
 ---
 <div class="sil" data-sil={id}>
-  <div class={compact ? "" : "tool-grid"}>
-    <div class="panel">
-      <label for={`${id}-task`} style="font-weight:600;display:block;margin-bottom:0.5rem;">
-        Describe the task you want the AI to do
-      </label>
-      <textarea id={`${id}-task`} class="task" data-task
-        placeholder="e.g. Sort new customer emails and draft replies until each one has a clear answer"></textarea>
+  <div class={compact ? "sil-shell sil-shell-compact" : "sil-shell"}>
+    <div class={compact ? "sil-layout sil-layout-compact" : "sil-layout"}>
+      <div class="sil-input">
+        <label for={`${id}-task`} class="sil-label">
+          What should the AI do?
+        </label>
+        <textarea id={`${id}-task`} class="task" data-task
+          placeholder="Example: Check every new support message, draft a reply, and keep improving it until it answers the customer."></textarea>
 
-      <div class="examples" data-examples>
-        <button type="button" class="chip" data-ex="Rewrite this email in a friendlier tone.">one-prompt example</button>
-        <button type="button" class="chip" data-ex="Read this form, write a summary, then send it to the right team.">fixed-steps example</button>
-        <button type="button" class="chip" data-ex="Check every new support message, draft a reply, and keep revising until the reply answers the customer.">loop example</button>
-      </div>
-
-      {!compact && (
-        <div class="signals" data-signals>
-          <label><input type="checkbox" data-sig="needsVerification" /> The AI needs to check whether its answer worked</label>
-          <label><input type="checkbox" data-sig="multiStep" /> A later step depends on what happens earlier</label>
-          <label><input type="checkbox" data-sig="externalFeedback" /> The AI will see new information after it tries</label>
-          <label><input type="checkbox" data-sig="deterministicSingle" /> It is one clear answer</label>
-          <label><input type="checkbox" data-sig="ambiguity" /> A person may need to decide or approve something</label>
+        <div class="examples" data-examples>
+          <span class="examples-label">Try:</span>
+          <button type="button" class="chip" data-ex="Rewrite this email in a friendlier tone.">One prompt</button>
+          <button type="button" class="chip" data-ex="Read this form, write a summary, then send it to the right team.">Fixed steps</button>
+          <button type="button" class="chip" data-ex="Check every new support message, draft a reply, and keep revising until the reply answers the customer.">Loop</button>
         </div>
-      )}
 
-      <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;">
-        <button type="button" class="btn btn-primary" data-analyze>Analyze</button>
-        <button type="button" class="btn" data-clear>Clear</button>
+        <div class="prompt-history hidden" data-history-wrap>
+          <div class="prompt-history-head">
+            <span>Recent prompts</span>
+            <button type="button" class="history-clear" data-history-clear>Clear</button>
+          </div>
+          <div class="history-list" data-history-list></div>
+        </div>
+
+        <div class="sil-actions">
+          <button type="button" class="btn btn-primary" data-analyze>Analyze</button>
+          <button type="button" class="btn" data-clear>Clear</button>
+        </div>
       </div>
-    </div>
 
-    <div class="panel" data-result aria-live="polite">
-      <p class="dim">Describe a task and hit <strong>Analyze</strong>. You'll get a verdict, why, and the pattern to use.</p>
+      <div class="sil-result" data-result aria-live="polite">
+        <p class="result-empty-title">Your answer will appear here.</p>
+        <p class="dim result-empty-copy">Describe the job, then click <strong>Analyze</strong>. The tool will choose one prompt, fixed steps, or a loop.</p>
+      </div>
     </div>
   </div>
   {!compact && (
-    <p class="dim" style="font-size:0.82rem;margin-top:0.75rem;">
+    <p class="dim sil-footnote">
       The tool gives a simple recommendation. Your text is not stored.
     </p>
   )}
@@ -49,7 +51,7 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
 
 <script>
   type Verdict = "loop" | "single" | "chain" | "borderline";
-  const LABEL: Record<Verdict, string> = { loop: "USE A LOOP", single: "ONE PROMPT", chain: "FIXED STEPS", borderline: "NEED MORE DETAIL" };
+  const LABEL: Record<Verdict, string> = { loop: "Use a loop", single: "Use one prompt", chain: "Use fixed steps", borderline: "Need more detail" };
   const CLS: Record<Verdict, string> = { loop: "v-loop", single: "v-single", chain: "v-chain", borderline: "v-borderline" };
   const ANSWER: Record<Verdict, string> = {
     loop: "Let the AI try, check what happened, and try again if needed.",
@@ -104,6 +106,10 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
     const resultEl = root.querySelector<HTMLElement>("[data-result]")!;
     const analyzeBtn = root.querySelector<HTMLButtonElement>("[data-analyze]")!;
     const clearBtn = root.querySelector<HTMLButtonElement>("[data-clear]")!;
+    const historyWrap = root.querySelector<HTMLElement>("[data-history-wrap]");
+    const historyList = root.querySelector<HTMLElement>("[data-history-list]");
+    const historyClearBtn = root.querySelector<HTMLButtonElement>("[data-history-clear]");
+    const historyKey = "loops.guide.should-i-loop.history";
 
     root.querySelectorAll<HTMLButtonElement>("[data-ex]").forEach((chip) => {
       chip.addEventListener("click", () => { taskEl.value = chip.dataset.ex || ""; taskEl.focus(); });
@@ -111,17 +117,71 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
 
     clearBtn.addEventListener("click", () => {
       taskEl.value = "";
-      root.querySelectorAll<HTMLInputElement>("[data-sig]").forEach((c) => (c.checked = false));
-      resultEl.innerHTML = '<p class="dim">Cleared. Describe a task and hit <strong>Analyze</strong>.</p>';
+      resultEl.innerHTML = '<p class="result-empty-title">Cleared.</p><p class="dim result-empty-copy">Describe the job, then click <strong>Analyze</strong>.</p>';
     });
 
-    function collectSignals() {
-      const sig: Record<string, boolean> = {};
-      root.querySelectorAll<HTMLInputElement>("[data-sig]").forEach((c) => {
-        if (c.checked) sig[c.dataset.sig!] = true;
-      });
-      return sig;
+    function readHistory(): string[] {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(historyKey) || "[]");
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+          .filter((item): item is string => typeof item === "string")
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0 && item.length <= 4000)
+          .slice(0, 6);
+      } catch {
+        return [];
+      }
     }
+
+    function writeHistory(items: string[]) {
+      try {
+        localStorage.setItem(historyKey, JSON.stringify(items.slice(0, 6)));
+      } catch {
+        // Ignore storage failures, such as private browsing quota limits.
+      }
+    }
+
+    function renderHistory() {
+      if (!historyWrap || !historyList) return;
+
+      const items = readHistory();
+      historyList.replaceChildren();
+      historyWrap.classList.toggle("hidden", items.length === 0);
+
+      items.forEach((item) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "history-item";
+        button.textContent = item;
+        button.title = item;
+        button.addEventListener("click", () => {
+          taskEl.value = item;
+          taskEl.focus();
+        });
+        historyList.append(button);
+      });
+    }
+
+    function saveHistory(task: string) {
+      const cleanTask = task.trim();
+      if (!cleanTask) return;
+
+      const next = [cleanTask, ...readHistory().filter((item) => item !== cleanTask)].slice(0, 6);
+      writeHistory(next);
+      renderHistory();
+    }
+
+    historyClearBtn?.addEventListener("click", () => {
+      try {
+        localStorage.removeItem(historyKey);
+      } catch {
+        writeHistory([]);
+      }
+      renderHistory();
+    });
+
+    renderHistory();
 
     function certainty(score: number) {
       if (score >= 80) return "Very sure";
@@ -130,7 +190,7 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
     }
 
     function simpleReasons(d: any, v: Verdict) {
-      const blocked = /\b(patternslug|pre-analysis|heuristic|signals?|deterministic|non-iterative|iterative process|llm|confidence|discrepancy|nuanced|classification|verdict|architecture)\b/i;
+      const blocked = /\b(patternslug|pre-analysis|heuristic|signals?|deterministic|non-iterative|iterative process|llm|confidence|discrepancy|nuanced|classification|verdict|architecture|runtime|validator|orchestration|mcp)\b/i;
       const fallback: Record<Verdict, string[]> = {
         loop: ["The AI needs to use the result of one try before choosing the next move."],
         single: ["This looks like one clear job with one answer."],
@@ -155,23 +215,25 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
 
     async function analyze() {
       const task = taskEl.value.trim();
-      if (!task) { resultEl.innerHTML = '<p class="dim">Type a task first.</p>'; return; }
+      if (!task) { resultEl.innerHTML = '<p class="result-empty-title">Type a task first.</p><p class="dim result-empty-copy">A sentence or two is enough.</p>'; return; }
+      saveHistory(task);
       resultEl.innerHTML = '<p class="skeleton">Analyzing…</p>';
       try {
         const res = await fetch("/api/should-i-loop", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ task, signals: collectSignals() }),
+          body: JSON.stringify({ task }),
         });
         const data = await res.json();
         if (res.status === 422 || data.verdict === "rejected") {
           const reason = data.reasons?.[0] ?? "That does not look like an AI automation task.";
           resultEl.innerHTML = `
-            <p class="dim" style="margin:0;">
-              <strong>Not an AI automation task.</strong> ${esc(reason)}
-              <br />
-              <span style="font-size:0.85rem;">Describe work you want an AI agent to do, such as fixing tests, monitoring a feed, or processing documents.</span>
-            </p>
+            <div class="result-summary">
+              <span class="verdict-badge v-borderline">Not enough</span>
+            </div>
+            <h3 class="result-heading">Try another task</h3>
+            <p class="result-answer">${esc(reason)}</p>
+            <p class="dim result-empty-copy">Describe work you want an AI to do, like fixing tests, watching new messages, or processing documents.</p>
           `;
           return;
         }
@@ -192,30 +254,33 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
         text: d.pattern?.tagline || "Use this setup for the task.",
         steps: d.checklist || [],
       };
+      const patternHref = d.pattern?.href || (d.pattern?.slug ? `/patterns/${d.pattern.slug}` : "/patterns");
       const checklist = pattern.steps.map((c: string) => `<li>${esc(c)}</li>`).join("");
       resultEl.innerHTML = `
         <div class="result-summary">
           <span class="verdict-badge ${CLS[v]}">${LABEL[v]}</span>
           <span class="result-certainty">${certainty(Number(d.confidence) || 0)}</span>
         </div>
-        <h3 class="result-heading">Simple answer</h3>
-        <p class="result-answer">${esc(ANSWER[v])}</p>
+        <h3 class="result-heading">Answer</h3>
+        <p class="result-answer result-answer-main">${esc(ANSWER[v])}</p>
         <h3 class="result-heading">Why</h3>
         <ul class="reasons">${reasons}</ul>
-        <h3 class="result-heading">Suggested setup</h3>
-        <p class="result-answer"><a href="${d.pattern.href}"><strong>${esc(pattern.name)}</strong></a>: ${esc(pattern.text)}</p>
-        <details>
-          <summary class="dim result-details">How to start</summary>
+        <div class="result-setup">
+          <h3 class="result-heading">Best setup</h3>
+          <p class="result-answer"><a href="${patternHref}"><strong>${esc(pattern.name)}</strong></a>: ${esc(pattern.text)}</p>
+        </div>
+        <details class="result-start">
+          <summary class="dim result-details">Starter steps</summary>
           <ol class="reasons simple-steps">${checklist}</ol>
         </details>
-        <button type="button" class="btn" data-copy style="margin-top:0.75rem;font-size:0.85rem;">Copy result</button>
+        <button type="button" class="btn result-copy" data-copy>Copy</button>
       `;
       const copyBtn = resultEl.querySelector<HTMLButtonElement>("[data-copy]");
       copyBtn?.addEventListener("click", () => {
         const text = `Should I Loop? ${LABEL[v]}\nSimple answer: ${ANSWER[v]}\nWhy: ${simpleReasons(d, v).join(" ")}\nSuggested setup: ${pattern.name}. ${pattern.text}\nvia loops.guide`;
         navigator.clipboard?.writeText(text);
         copyBtn.textContent = "Copied ✓";
-        setTimeout(() => (copyBtn.textContent = "Copy result"), 1500);
+        setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
       });
     }
 
