@@ -1147,7 +1147,7 @@ a.card:hover {
 }
 
 /* ---------- section rhythm ---------- */
-.section { padding: 3.6rem 0; }
+.section { padding-block: 3.6rem; }
 .section-head { max-width: 60ch; }
 
 .media-section {
@@ -1379,13 +1379,20 @@ textarea.task:focus {
   grid-template-columns: 1.05fr 1.45fr;
   gap: 1.25rem;
   align-items: start;
-  padding: 1.1rem 0.2rem;
+  padding: 1.1rem 0.35rem;
   border-bottom: 1px solid var(--border);
 }
 .tasklog .t { font-family: var(--serif); font-size: 1.16rem; line-height: 1.28; }
 .tasklog .a { color: var(--text-dim); font-size: 0.98rem; }
 .tasklog .a b { color: var(--text); font-weight: 650; }
-@media (max-width: 680px) { .tasklog .row { grid-template-columns: 1fr; gap: 0.5rem; } }
+@media (max-width: 680px) {
+  .section { padding-block: 2.8rem; }
+  .tasklog .row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 1.35rem 0.65rem;
+  }
+}
 
 /* book-style table of contents */
 .toc { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
