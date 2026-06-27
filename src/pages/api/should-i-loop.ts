@@ -11,6 +11,8 @@ const json = (data: unknown, status = 200) =>
     headers: { "content-type": "application/json; charset=utf-8" },
   });
 
+const DEFAULT_WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
+
 export const POST: APIRoute = async ({ request, locals }) => {
   let body: any;
   try {
@@ -120,74 +122,93 @@ async function refineWithLLM(
     2,
   )}`;
 
-  let raw: string | null = null;
+  let raw: unknown = null;
 
-  // Provider A: Cloudflare Workers AI binding (env.AI)
+  // Provider A: Cloudflare Workers AI binding (env.AI).
+  // This is the default production path for loops.guide.
   if (env.AI && typeof env.AI.run === "function") {
-    const out = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
-      messages: [
-        { role: "system", content: sys },
-        { role: "user", content: user },
-      ],
-      max_tokens: 400,
-    });
-    raw = out?.response ?? null;
+    try {
+      const model = env.WORKERS_AI_MODEL || DEFAULT_WORKERS_AI_MODEL;
+      const out = await env.AI.run(model, {
+        messages: [
+          { role: "system", content: sys },
+          { role: "user", content: user },
+        ],
+        max_tokens: 512,
+        temperature: 0.1,
+        response_format: {
+          type: "json_schema",
+          json_schema: buildResponseSchema(validSlugs),
+        },
+      });
+      raw = extractLLMResponse(out);
+    } catch {
+      raw = null;
+    }
   }
 
   // Provider B: Anthropic API key
   if (!raw && env.ANTHROPIC_API_KEY) {
-    const model = env.ANTHROPIC_MODEL || "claude-3-5-haiku-latest";
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 512,
-        system: sys,
-        messages: [{ role: "user", content: user }],
-      }),
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (res.ok) {
-      const data: any = await res.json();
-      raw = data?.content?.[0]?.text ?? null;
+    try {
+      const model = env.ANTHROPIC_MODEL || "claude-3-5-haiku-latest";
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 512,
+          system: sys,
+          messages: [{ role: "user", content: user }],
+        }),
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (res.ok) {
+        const data: any = await res.json();
+        raw = data?.content?.[0]?.text ?? null;
+      }
+    } catch {
+      raw = null;
     }
   }
 
   // Provider C: OpenAI API key
   if (!raw && env.OPENAI_API_KEY) {
-    const model = env.OPENAI_MODEL || "gpt-4o-mini";
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 512,
-        temperature: 0.2,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: sys },
-          { role: "user", content: user },
-        ],
-      }),
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (res.ok) {
-      const data: any = await res.json();
-      raw = data?.choices?.[0]?.message?.content ?? null;
+    try {
+      const model = env.OPENAI_MODEL || "gpt-4o-mini";
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 512,
+          temperature: 0.2,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: sys },
+            { role: "user", content: user },
+          ],
+        }),
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (res.ok) {
+        const data: any = await res.json();
+        raw = data?.choices?.[0]?.message?.content ?? null;
+      }
+    } catch {
+      raw = null;
     }
   }
 
   if (!raw) return null;
 
-  const parsed = safeJson(raw);
+  const parsed = parseLLMJson(raw);
   if (!parsed) return null;
 
   const allVerdicts = ["loop", "single", "chain", "borderline", "rejected"] as const;
@@ -222,12 +243,61 @@ async function refineWithLLM(
   };
 }
 
-function safeJson(text: string): any | null {
+function buildResponseSchema(patternSlugs: string[]) {
+  return {
+    type: "object",
+    properties: {
+      verdict: {
+        type: "string",
+        enum: ["loop", "single", "chain", "borderline", "rejected"],
+      },
+      confidence: {
+        type: "number",
+        minimum: 0,
+        maximum: 100,
+      },
+      reasons: {
+        type: "array",
+        minItems: 1,
+        maxItems: 4,
+        items: { type: "string" },
+      },
+      patternSlug: {
+        type: "string",
+        enum: patternSlugs,
+      },
+    },
+    required: ["verdict", "confidence", "reasons"],
+  };
+}
+
+function extractLLMResponse(data: any): unknown {
+  if (!data) return null;
+  if (typeof data === "string") return data;
+  if (data.response !== undefined) return data.response;
+  if (data.result?.response !== undefined) return data.result.response;
+  if (data.text !== undefined) return data.text;
+  return data;
+}
+
+function parseLLMJson(raw: unknown): any | null {
+  if (!raw) return null;
+
+  if (typeof raw === "object") {
+    if ("verdict" in raw) return raw;
+
+    const extracted = extractLLMResponse(raw);
+    if (extracted !== raw) return parseLLMJson(extracted);
+    return null;
+  }
+
+  if (typeof raw !== "string") return null;
+
   try {
-    const start = text.indexOf("{");
-    const end = text.lastIndexOf("}");
+    const start = raw.indexOf("{");
+    const end = raw.lastIndexOf("}");
     if (start === -1 || end === -1) return null;
-    return JSON.parse(text.slice(start, end + 1));
+    return JSON.parse(raw.slice(start, end + 1));
   } catch {
     return null;
   }

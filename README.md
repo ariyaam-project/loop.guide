@@ -37,13 +37,15 @@ astro.config.mjs · wrangler.jsonc · tsconfig.json
 ## The agent (two layers)
 
 1. **Heuristic** (`src/lib/classifier.ts`), pure, deterministic, zero-dependency. Always returns a verdict (loop / single / chain / borderline), confidence, reasons, and a recommended pattern. Works offline.
-2. **LLM refinement** (optional), if a model is configured, `/api/should-i-loop` asks it to sharpen the heuristic's result, reject off-topic inputs, and fall back silently on any error.
+2. **LLM refinement** via Cloudflare Workers AI, `/api/should-i-loop` asks the model to sharpen the heuristic's result, reject off-topic inputs, and return structured JSON. If Workers AI is unavailable, the heuristic still answers.
 
-### Enable the LLM layer (optional)
+### LLM layer
 
-**Cloudflare Workers AI:** uncomment `"ai": { "binding": "AI" }` in `wrangler.jsonc`.
+**Cloudflare Workers AI:** `wrangler.jsonc` includes an AI binding named `AI`, and the endpoint calls `env.AI.run()` with the local classifier prompt. The default model is `@cf/meta/llama-3.1-8b-instruct-fast`; override it with `WORKERS_AI_MODEL` if needed.
 
-**OpenAI:** set a secret.
+For Cloudflare Pages deployments configured through the dashboard, make sure the Pages project also has a Workers AI binding named `AI`.
+
+**OpenAI fallback:** set a secret if you want a hosted fallback when Workers AI is unavailable.
 ```bash
 wrangler pages secret put OPENAI_API_KEY
 # optional model override
@@ -51,7 +53,7 @@ wrangler pages secret put OPENAI_MODEL
 # local dev: copy .dev.vars.example → .dev.vars and add the key
 ```
 
-**Anthropic:** set a secret.
+**Anthropic fallback:** set a secret if you want a hosted fallback when Workers AI is unavailable.
 ```bash
 wrangler pages secret put ANTHROPIC_API_KEY
 # optional model override
@@ -62,7 +64,7 @@ wrangler pages secret put ANTHROPIC_MODEL
 ## Tests
 
 ```bash
-npx tsx --test test/classifier.test.mjs   # tsx runs the .ts import directly
+npm test
 ```
 
 ## Deploy (Cloudflare Pages)

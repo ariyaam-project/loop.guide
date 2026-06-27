@@ -10,6 +10,8 @@
     "deploy": "astro build && wrangler pages deploy ./dist",
     "astro": "astro",
     "check": "astro check",
+    "test": "tsx --test test/*.test.mjs",
+    "test:api": "tsx --test test/should-i-loop-api.test.mjs",
     "test:classifier": "tsx --test test/classifier.test.mjs"
   },
   "dependencies": {

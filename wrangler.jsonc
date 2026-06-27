@@ -5,9 +5,9 @@
   "compatibility_flags": ["nodejs_compat"],
   "pages_build_output_dir": "./dist",
 
-  // OPTIONAL. Uncomment to enable the LLM refinement layer via Cloudflare Workers AI.
-  // The tool works without this (heuristic fallback). See src/pages/api/should-i-loop.ts.
-  // "ai": { "binding": "AI" }
+  // Enables the LLM refinement layer for the Should I Loop? tool.
+  // The tool still falls back to its heuristic if Workers AI is unavailable.
+  "ai": { "binding": "AI" },
 
   // To use OpenAI instead, set a secret:
   //   wrangler pages secret put OPENAI_API_KEY
