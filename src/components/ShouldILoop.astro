@@ -101,6 +101,11 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
     return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
   }
 
+  function trackClarityEvent(name: string) {
+    const clarity = (window as any).clarity;
+    if (typeof clarity === "function") clarity("event", name);
+  }
+
   document.querySelectorAll<HTMLElement>(".sil").forEach((root) => {
     const taskEl = root.querySelector<HTMLTextAreaElement>("[data-task]")!;
     const resultEl = root.querySelector<HTMLElement>("[data-result]")!;
@@ -110,13 +115,26 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
     const historyList = root.querySelector<HTMLElement>("[data-history-list]");
     const historyClearBtn = root.querySelector<HTMLButtonElement>("[data-history-clear]");
     const historyKey = "loops.guide.should-i-loop.history";
+    let promptEntryTracked = false;
+
+    function trackPromptEntry() {
+      if (promptEntryTracked || !taskEl.value.trim()) return;
+
+      promptEntryTracked = true;
+      trackClarityEvent("should_i_loop_prompt_entered");
+    }
 
     root.querySelectorAll<HTMLButtonElement>("[data-ex]").forEach((chip) => {
-      chip.addEventListener("click", () => { taskEl.value = chip.dataset.ex || ""; taskEl.focus(); });
+      chip.addEventListener("click", () => {
+        taskEl.value = chip.dataset.ex || "";
+        taskEl.focus();
+        trackPromptEntry();
+      });
     });
 
     clearBtn.addEventListener("click", () => {
       taskEl.value = "";
+      promptEntryTracked = false;
       resultEl.innerHTML = '<p class="result-empty-title">Cleared.</p><p class="dim result-empty-copy">Describe the job, then click <strong>Analyze</strong>.</p>';
     });
 
@@ -158,6 +176,7 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
         button.addEventListener("click", () => {
           taskEl.value = item;
           taskEl.focus();
+          trackPromptEntry();
         });
         historyList.append(button);
       });
@@ -182,6 +201,7 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
     });
 
     renderHistory();
+    taskEl.addEventListener("input", trackPromptEntry);
 
     function certainty(score: number) {
       if (score >= 80) return "Very sure";
@@ -235,10 +255,12 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
             <p class="result-answer">${esc(reason)}</p>
             <p class="dim result-empty-copy">Describe work you want an AI to do, like fixing tests, watching new messages, or processing documents.</p>
           `;
+          trackClarityEvent("should_i_loop_response_received");
           return;
         }
         if (!res.ok) throw new Error("bad status");
         render(data);
+        trackClarityEvent("should_i_loop_response_received");
       } catch {
         resultEl.innerHTML =
           '<p class="dim">Couldn\'t reach the analyzer endpoint (this happens on a pure static preview). ' +
