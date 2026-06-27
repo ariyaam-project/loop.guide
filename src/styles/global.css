@@ -575,7 +575,7 @@ a.card:hover {
 }
 
 .loop-node span,
-.atlas-tile span {
+.atlas-tile .atlas-index {
   display: block;
   margin-bottom: 0.28rem;
   color: var(--text-faint);
@@ -982,48 +982,76 @@ a.card:hover {
   }
 }
 
-.pattern-atlas { min-height: 360px; }
+.pattern-atlas { min-height: 0; }
 
 .atlas-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-  padding: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  padding: 0.85rem;
 }
 
 .atlas-tile {
-  display: block;
-  min-height: 128px;
-  padding: 0.72rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  column-gap: 0.72rem;
+  align-items: center;
+  min-height: 82px;
+  padding: 0.64rem 0.7rem;
+  border: 1px solid var(--border-soft);
+  border-radius: calc(var(--radius) - 2px);
+  background: color-mix(in srgb, var(--surface) 68%, transparent);
   color: var(--text);
 }
 
 .atlas-tile:hover {
   border-color: var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
   text-decoration: none;
 }
 
-.atlas-tile svg {
+.atlas-mark {
   display: block;
-  width: 100%;
-  margin-bottom: 0.35rem;
+  grid-row: 1 / 4;
+  width: 72px;
+  height: 42px;
+}
+
+.atlas-tile .atlas-index {
+  margin: 0;
+  font-size: 0.68rem;
+}
+
+.atlas-tile strong {
+  margin-top: 0.1rem;
+  font-size: 0.98rem;
+  line-height: 1.08;
+  white-space: nowrap;
+}
+
+.atlas-tile small {
+  display: block;
+  min-width: 0;
+  margin-top: 0.14rem;
+  overflow: hidden;
+  color: var(--text-dim);
+  font-size: 0.76rem;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mini-start { fill: var(--ink); }
-.mini-box { fill: var(--surface); stroke: var(--border); stroke-width: 2; }
+.mini-box { fill: var(--surface); stroke: var(--border-strong); stroke-width: 2; }
 .mini-path { fill: none; stroke: var(--text-faint); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .mini-loop { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
 .mini-gate { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
 .mini-check { fill: var(--green-soft); stroke: var(--green); stroke-width: 3; }
 .mini-burst { fill: none; stroke: var(--amber); stroke-width: 3; stroke-linecap: round; }
 .mini-rise { fill: none; stroke: var(--green); stroke-width: 3; stroke-linecap: round; }
-
-.atlas-tile:last-child {
-  grid-column: span 2;
-}
+.mini-tick { fill: none; stroke: var(--green); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.mini-deploy { fill: var(--accent); stroke: var(--accent-strong); }
 
 .float-glyph,
 .mark-line { display: none; }
@@ -1112,8 +1140,7 @@ a.card:hover {
   .node-observe { left: 1rem; right: auto; top: 16rem; }
   .node-verify { right: 1rem; left: auto; bottom: 1rem; }
   .system-bar-note { display: none; }
-  .atlas-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .atlas-tile:last-child { grid-column: span 2; }
+  .atlas-grid { grid-template-columns: 1fr; }
   .card-stack { height: auto; display: grid; gap: 1rem; }
   .q-card { position: static; width: auto !important; transform: none !important; }
   .q-card.c2 { transform: none !important; }

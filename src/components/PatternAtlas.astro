@@ -1,19 +1,97 @@
 ---
-import PatternFlowDiagram from "./PatternFlowDiagram.astro";
 import { PATTERNS } from "../lib/patterns";
+
+const atlasCopy = {
+  "retry": ["Retry", "try, check, retry"],
+  "plan-execute-verify": ["Plan Verify", "plan, test, revise"],
+  "explore-narrow": ["Explore", "branch, compare, narrow"],
+  "human-in-the-loop": ["Human Gate", "pause on judgment"],
+  "verification": ["Evaluator", "grade before shipping"],
+  "event-driven": ["Event Run", "wake, act, wait"],
+  "hill-climbing": ["Hill-Climb", "measure and improve"],
+} as const;
 ---
 <div class="system-visual pattern-atlas" aria-label="Atlas of loop engineering patterns">
   <div class="system-bar">
     <span>pattern atlas</span>
-    <span class="system-bar-note">seven reusable loop shapes</span>
+    <span class="system-bar-note">seven loop shapes</span>
   </div>
   <div class="atlas-grid">
-    {PATTERNS.map((pattern, index) => (
-      <a class="atlas-tile" href={`/patterns/${pattern.slug}`}>
-        <PatternFlowDiagram pattern={pattern} index={index} variant="mini" />
-        <span>{String(index + 1).padStart(2, "0")}</span>
-        <strong>{pattern.name.replace(" Loop", "")}</strong>
-      </a>
-    ))}
+    {PATTERNS.map((pattern, index) => {
+      const [title, hint] = atlasCopy[pattern.slug];
+      return (
+        <a class="atlas-tile" href={`/patterns/${pattern.slug}`}>
+          <svg class={`atlas-mark atlas-mark-${pattern.slug}`} viewBox="0 0 96 48" aria-hidden="true">
+            {pattern.slug === "retry" && (
+              <>
+                <path class="mini-path" d="M14 24h16M54 24h13" />
+                <path class="mini-loop" d="M62 18C62 5 34 5 34 18" />
+                <circle class="mini-start" cx="10" cy="24" r="4" />
+                <rect class="mini-box" x="30" y="15" width="24" height="18" rx="4" />
+                <path class="mini-gate" d="M72 12l14 12-14 12-14-12z" />
+              </>
+            )}
+            {pattern.slug === "plan-execute-verify" && (
+              <>
+                <path class="mini-path" d="M12 24h18M50 24h18" />
+                <path class="mini-loop" d="M62 35C48 43 34 43 25 34" />
+                <circle class="mini-start" cx="8" cy="24" r="4" />
+                <rect class="mini-box" x="30" y="15" width="20" height="18" rx="4" />
+                <rect class="mini-box" x="68" y="15" width="20" height="18" rx="4" />
+              </>
+            )}
+            {pattern.slug === "explore-narrow" && (
+              <>
+                <path class="mini-path" d="M14 24h24" />
+                <path class="mini-loop" d="M48 22c11-14 21-14 32-3" />
+                <path class="mini-rise" d="M48 26c11 14 21 14 32 3" />
+                <circle class="mini-start" cx="10" cy="24" r="4" />
+                <rect class="mini-box" x="38" y="15" width="22" height="18" rx="4" />
+                <circle class="mini-check" cx="84" cy="16" r="5" />
+                <circle class="mini-check" cx="84" cy="32" r="5" />
+              </>
+            )}
+            {pattern.slug === "human-in-the-loop" && (
+              <>
+                <path class="mini-path" d="M14 24h20M54 24h16" />
+                <circle class="mini-start" cx="10" cy="24" r="4" />
+                <rect class="mini-box" x="34" y="15" width="20" height="18" rx="4" />
+                <path class="mini-gate" d="M72 12l14 12-14 12-14-12z" />
+              </>
+            )}
+            {pattern.slug === "verification" && (
+              <>
+                <path class="mini-path" d="M12 24h18M52 24h14" />
+                <path class="mini-loop" d="M62 15C54 5 24 6 22 18" />
+                <rect class="mini-box" x="30" y="15" width="20" height="18" rx="4" />
+                <rect class="mini-check" x="66" y="14" width="20" height="20" rx="4" />
+                <path class="mini-tick" d="M71 24l4 4 8-10" />
+              </>
+            )}
+            {pattern.slug === "event-driven" && (
+              <>
+                <path class="mini-path" d="M15 24h19M54 24h18" />
+                <path class="mini-loop" d="M79 15C74 5 18 5 14 17" />
+                <path class="mini-burst" d="M10 15v18M1 24h18M4 18l12 12M16 18 4 30" />
+                <rect class="mini-box" x="34" y="15" width="20" height="18" rx="4" />
+                <circle class="mini-check" cx="80" cy="24" r="8" />
+              </>
+            )}
+            {pattern.slug === "hill-climbing" && (
+              <>
+                <path class="mini-path" d="M12 25h18M50 25h16" />
+                <path class="mini-loop" d="M72 14C56 3 30 4 18 18" />
+                <path class="mini-rise" d="M12 36c20-2 34-11 50-24" />
+                <rect class="mini-box" x="30" y="16" width="20" height="18" rx="4" />
+                <rect class="mini-box mini-deploy" x="66" y="16" width="20" height="18" rx="4" />
+              </>
+            )}
+          </svg>
+          <span class="atlas-index">{String(index + 1).padStart(2, "0")}</span>
+          <strong>{title}</strong>
+          <small>{hint}</small>
+        </a>
+      );
+    })}
   </div>
 </div>
