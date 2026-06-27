@@ -41,7 +41,7 @@ astro.config.mjs · wrangler.jsonc · tsconfig.json
 
 ### LLM layer
 
-**Cloudflare Workers AI:** `wrangler.jsonc` includes an AI binding named `AI`, and the endpoint calls `env.AI.run()` with the local classifier prompt. The default model is `@cf/meta/llama-3.1-8b-instruct-fast`; override it with `WORKERS_AI_MODEL` if needed.
+**Cloudflare Workers AI:** `wrangler.jsonc` includes an AI binding named `AI`, and the endpoint calls `env.AI.run()` with the local classifier prompt. The default model is `@cf/openai/gpt-oss-20b`; override it with `WORKERS_AI_MODEL` if needed.
 
 For Cloudflare Pages deployments configured through the dashboard, make sure the Pages project also has a Workers AI binding named `AI`.
 

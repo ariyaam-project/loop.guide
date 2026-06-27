@@ -11,7 +11,7 @@ const json = (data: unknown, status = 200) =>
     headers: { "content-type": "application/json; charset=utf-8" },
   });
 
-const DEFAULT_WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
+const DEFAULT_WORKERS_AI_MODEL = "@cf/openai/gpt-oss-20b";
 
 export const POST: APIRoute = async ({ request, locals }) => {
   let body: any;

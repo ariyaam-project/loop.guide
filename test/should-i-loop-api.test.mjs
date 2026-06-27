@@ -43,7 +43,7 @@ test("Should I Loop? uses Workers AI with the classifier prompt", async () => {
   assert.equal(data.pattern.slug, "retry");
   assert.equal(data.reasons.length, 1);
   assert.doesNotMatch(data.reasons.join(" "), /patternSlug|heuristic|signals|deterministic/i);
-  assert.equal(call.model, "@cf/meta/llama-3.1-8b-instruct-fast");
+  assert.equal(call.model, "@cf/openai/gpt-oss-20b");
   assert.equal(call.input.response_format.type, "json_schema");
   assert.match(call.input.messages[0].content, /Loop Advisor/);
   assert.match(call.input.messages[1].content, /HEURISTIC PRE-ANALYSIS/);
