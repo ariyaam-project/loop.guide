@@ -23,7 +23,10 @@ test("Should I Loop? uses Workers AI with the classifier prompt", async () => {
           response: {
             verdict: "loop",
             confidence: 93,
-            reasons: ["The task needs runtime feedback before choosing the next action."],
+            reasons: [
+              "The heuristic pre-analysis signals a deterministic discrepancy.",
+              "patternSlug: retry",
+            ],
             patternSlug: "retry",
           },
         };
@@ -38,6 +41,8 @@ test("Should I Loop? uses Workers AI with the classifier prompt", async () => {
   assert.equal(data.source, "llm");
   assert.equal(data.verdict, "loop");
   assert.equal(data.pattern.slug, "retry");
+  assert.equal(data.reasons.length, 1);
+  assert.doesNotMatch(data.reasons.join(" "), /patternSlug|heuristic|signals|deterministic/i);
   assert.equal(call.model, "@cf/meta/llama-3.1-8b-instruct-fast");
   assert.equal(call.input.response_format.type, "json_schema");
   assert.match(call.input.messages[0].content, /Loop Advisor/);

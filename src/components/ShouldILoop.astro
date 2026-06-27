@@ -49,8 +49,51 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
 
 <script>
   type Verdict = "loop" | "single" | "chain" | "borderline";
-  const LABEL: Record<Verdict, string> = { loop: "LOOP", single: "SINGLE PROMPT", chain: "CHAIN", borderline: "BORDERLINE" };
+  const LABEL: Record<Verdict, string> = { loop: "USE A LOOP", single: "ONE PROMPT", chain: "FIXED STEPS", borderline: "NEED MORE DETAIL" };
   const CLS: Record<Verdict, string> = { loop: "v-loop", single: "v-single", chain: "v-chain", borderline: "v-borderline" };
+  const ANSWER: Record<Verdict, string> = {
+    loop: "Let the AI try, check what happened, and try again if needed.",
+    single: "Use one clear instruction. The AI should not need to check anything after it answers.",
+    chain: "Use a short list of fixed steps. The order is already known.",
+    borderline: "I need a little more detail to be sure. Start simple, then add a loop only if the AI needs to react to results.",
+  };
+  const PATTERN_COPY: Record<string, { name: string; text: string; steps: string[] }> = {
+    retry: {
+      name: "Retry",
+      text: "Good when the AI can check if the answer worked, then try again.",
+      steps: ["Decide what counts as done.", "Let the AI try once.", "Check the result.", "If it fails, try a different fix."],
+    },
+    "plan-execute-verify": {
+      name: "Plan and check",
+      text: "Good when the job has several steps and each step should be checked.",
+      steps: ["Write the steps.", "Do one step.", "Check it.", "Move to the next step."],
+    },
+    "explore-narrow": {
+      name: "Try a few options",
+      text: "Good when you do not know the best path yet.",
+      steps: ["Try a few small options.", "Compare the results.", "Keep the best option.", "Stop when one is good enough."],
+    },
+    "human-in-the-loop": {
+      name: "Ask a person",
+      text: "Good when a person should approve an important or risky choice.",
+      steps: ["List what needs approval.", "Let the AI prepare the work.", "Ask a person before the risky step.", "Continue after approval."],
+    },
+    verification: {
+      name: "Add a checker",
+      text: "Good when quality matters and the AI needs a second check.",
+      steps: ["Say what a good answer looks like.", "Let the AI make the answer.", "Check it against that rule.", "Send it back if it is not good enough."],
+    },
+    "event-driven": {
+      name: "Run when something happens",
+      text: "Good when the task should start after a new event, like a form, issue, or schedule.",
+      steps: ["Choose what starts the task.", "Let the AI do the work.", "Save or send the result.", "Wait for the next event."],
+    },
+    "hill-climbing": {
+      name: "Improve over time",
+      text: "Good when the system should learn from past runs and get better.",
+      steps: ["Save what happened each time.", "Look for what went wrong.", "Improve the instructions.", "Measure if it got better."],
+    },
+  };
 
   function esc(s: string) {
     return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
@@ -78,6 +121,36 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
         if (c.checked) sig[c.dataset.sig!] = true;
       });
       return sig;
+    }
+
+    function certainty(score: number) {
+      if (score >= 80) return "Very sure";
+      if (score >= 60) return "Fairly sure";
+      return "Low certainty";
+    }
+
+    function simpleReasons(d: any, v: Verdict) {
+      const blocked = /\b(patternslug|pre-analysis|heuristic|signals?|deterministic|non-iterative|iterative process|llm|confidence|discrepancy|nuanced|classification|verdict|architecture)\b/i;
+      const fallback: Record<Verdict, string[]> = {
+        loop: ["The AI needs to use the result of one try before choosing the next move."],
+        single: ["This looks like one clear job with one answer."],
+        chain: ["The steps are already known and can be done in order."],
+        borderline: ["There is not enough clear detail to choose confidently yet."],
+      };
+      const cleaned = (d.reasons || [])
+        .filter((r: unknown): r is string => typeof r === "string")
+        .map((r: string) =>
+          r
+            .replace(/\bruntime feedback\b/gi, "feedback from the result")
+            .replace(/\bsingle prompt\b/gi, "one prompt")
+            .replace(/\bAI automation task\b/gi, "task for an AI")
+            .trim(),
+        )
+        .filter((r: string) => r.length >= 8 && r.length <= 150)
+        .filter((r: string) => !blocked.test(r))
+        .filter((r: string) => !/^\s*[-*]?\s*[a-zA-Z]+Slug\s*:/i.test(r))
+        .slice(0, 3);
+      return cleaned.length ? cleaned : fallback[v];
     }
 
     async function analyze() {
@@ -113,27 +186,33 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
 
     function render(d: any) {
       const v = (d.verdict as Verdict) || "borderline";
-      const reasons = (d.reasons || []).map((r: string) => `<li>${esc(r)}</li>`).join("");
-      const checklist = (d.checklist || []).map((c: string) => `<li>${esc(c)}</li>`).join("");
+      const reasons = simpleReasons(d, v).map((r: string) => `<li>${esc(r)}</li>`).join("");
+      const pattern = PATTERN_COPY[d.pattern?.slug] || {
+        name: d.pattern?.name || "Recommended setup",
+        text: d.pattern?.tagline || "Use this setup for the task.",
+        steps: d.checklist || [],
+      };
+      const checklist = pattern.steps.map((c: string) => `<li>${esc(c)}</li>`).join("");
       resultEl.innerHTML = `
-        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+        <div class="result-summary">
           <span class="verdict-badge ${CLS[v]}">${LABEL[v]}</span>
-          <span class="dim mono" style="font-size:0.85rem;">${d.confidence}% confidence · ${d.source}</span>
+          <span class="result-certainty">${certainty(Number(d.confidence) || 0)}</span>
         </div>
-        <div class="confidence-track"><div class="confidence-fill" style="width:${d.confidence}%"></div></div>
-        <h3 style="margin:0.75rem 0 0.25rem;">Why</h3>
+        <h3 class="result-heading">Simple answer</h3>
+        <p class="result-answer">${esc(ANSWER[v])}</p>
+        <h3 class="result-heading">Why</h3>
         <ul class="reasons">${reasons}</ul>
-        <h3 style="margin:1rem 0 0.25rem;">Recommended pattern</h3>
-        <p style="margin:0 0 0.4rem;"><a href="${d.pattern.href}"><strong>${esc(d.pattern.name)}</strong></a>. ${esc(d.pattern.tagline)}</p>
+        <h3 class="result-heading">Suggested setup</h3>
+        <p class="result-answer"><a href="${d.pattern.href}"><strong>${esc(pattern.name)}</strong></a>: ${esc(pattern.text)}</p>
         <details>
-          <summary class="dim" style="cursor:pointer;font-size:0.9rem;">Starter checklist</summary>
-          <ul class="reasons">${checklist}</ul>
+          <summary class="dim result-details">How to start</summary>
+          <ol class="reasons simple-steps">${checklist}</ol>
         </details>
         <button type="button" class="btn" data-copy style="margin-top:0.75rem;font-size:0.85rem;">Copy result</button>
       `;
       const copyBtn = resultEl.querySelector<HTMLButtonElement>("[data-copy]");
       copyBtn?.addEventListener("click", () => {
-        const text = `Should I Loop? ${LABEL[v]} (${d.confidence}%)\nWhy: ${(d.reasons||[]).join(" ")}\nPattern: ${d.pattern.name}. ${d.pattern.tagline}\nvia loops.guide`;
+        const text = `Should I Loop? ${LABEL[v]}\nSimple answer: ${ANSWER[v]}\nWhy: ${simpleReasons(d, v).join(" ")}\nSuggested setup: ${pattern.name}. ${pattern.text}\nvia loops.guide`;
         navigator.clipboard?.writeText(text);
         copyBtn.textContent = "Copied ✓";
         setTimeout(() => (copyBtn.textContent = "Copy result"), 1500);

@@ -79,6 +79,9 @@ async function refineWithLLM(
   const sys = [
     "You are Loop Advisor, an expert classifier for AI agent architecture decisions.",
     "Your only job is to classify whether an AI automation task benefits from a loop, a chain, or a single prompt.",
+    "Write for a non-technical person. Use simple everyday words.",
+    "Do not mention internal terms like heuristic, pre-analysis, signals, patternSlug, deterministic, LLM, confidence score, or model architecture.",
+    "Do not put patternSlug or any JSON field name inside the reasons array.",
     "Reject anything that is not an AI automation task.",
     "",
     "Verdicts:",
@@ -108,7 +111,8 @@ async function refineWithLLM(
     "Cap borderline at 58. Use the full range instead of clustering around 80.",
     "",
     "Output only raw JSON with this shape:",
-    '{"verdict":"loop|single|chain|borderline|rejected","confidence":0-100,"reasons":["2-4 short sentences explaining why"],"patternSlug":"required unless rejected"}',
+    '{"verdict":"loop|single|chain|borderline|rejected","confidence":0-100,"reasons":["2-4 very short plain-English sentences"],"patternSlug":"required unless rejected"}',
+    "Each reason must be under 16 words.",
     "For rejected, omit patternSlug, set confidence to at least 95, and explain why the input is not an AI automation task.",
   ].join("\n");
   const user = `TASK:\n${task}\n\nHEURISTIC PRE-ANALYSIS:\n${JSON.stringify(
@@ -217,9 +221,10 @@ async function refineWithLLM(
 
   const confidence =
     typeof parsed.confidence === "number" ? Math.max(0, Math.min(100, Math.round(parsed.confidence))) : base.confidence;
-  const reasons = Array.isArray(parsed.reasons)
+  const rawReasons = Array.isArray(parsed.reasons)
     ? (parsed.reasons as unknown[]).filter((r): r is string => typeof r === "string").slice(0, 4)
     : base.reasons;
+  const reasons = cleanModelReasons(rawReasons, verdict, base);
 
   if (verdict === "rejected") {
     return {
@@ -269,6 +274,39 @@ function buildResponseSchema(patternSlugs: string[]) {
     },
     required: ["verdict", "confidence", "reasons"],
   };
+}
+
+function cleanModelReasons(reasons: string[], verdict: string, base: AnalyzeResult): string[] {
+  const blocked = /\b(patternslug|pre-analysis|heuristic|signals?|deterministic|non-iterative|iterative process|llm|confidence|discrepancy|nuanced|classification|verdict|architecture)\b/i;
+  const cleaned = reasons
+    .map((reason) =>
+      reason
+        .replace(/\bruntime feedback\b/gi, "feedback from the result")
+        .replace(/\bsingle prompt\b/gi, "one prompt")
+        .replace(/\bAI automation task\b/gi, "task for an AI")
+        .trim(),
+    )
+    .filter((reason) => reason.length >= 8 && reason.length <= 150)
+    .filter((reason) => !blocked.test(reason))
+    .filter((reason) => !/^\s*[-*]?\s*[a-zA-Z]+Slug\s*:/i.test(reason))
+    .slice(0, 3);
+
+  if (cleaned.length) return cleaned;
+
+  switch (verdict) {
+    case "loop":
+      return ["The AI needs to try, check the result, and decide what to do next."];
+    case "chain":
+      return ["The steps are already known, so the AI can follow them in order."];
+    case "single":
+      return ["This looks like one clear job, so one good instruction should be enough."];
+    case "borderline":
+      return ["There is not enough clear detail to choose confidently yet."];
+    case "rejected":
+      return ["This does not look like work you want an AI to do."];
+    default:
+      return base.reasons.slice(0, 2);
+  }
 }
 
 function extractLLMResponse(data: any): unknown {

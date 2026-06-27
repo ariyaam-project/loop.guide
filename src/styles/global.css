@@ -1334,8 +1334,36 @@ textarea.task:focus {
   background: linear-gradient(90deg, var(--accent), var(--green));
   transition: width 0.45s ease;
 }
+.result-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+.result-certainty {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+.result-heading {
+  margin: 0.85rem 0 0.28rem;
+  font-size: 1.05rem;
+}
+.result-answer {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.result-details {
+  cursor: pointer;
+  font-size: 0.92rem;
+}
 .reasons { margin: 0.7rem 0; padding-left: 1.15rem; }
 .reasons li { margin: 0.32rem 0; }
+.simple-steps {
+  padding-left: 1.25rem;
+}
 .skeleton { animation: pulse 1.2s infinite; color: var(--text-dim); }
 @keyframes pulse { 50% { opacity: 0.45; } }
 .hidden { display: none !important; }
