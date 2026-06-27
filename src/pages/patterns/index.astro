@@ -5,12 +5,12 @@ import { PATTERNS } from "../../lib/patterns";
 ---
 <BaseLayout
   title="Loop Patterns"
-  description="The seven core loop-engineering patterns: retry, plan-execute-verify, explore-narrow, human-in-the-loop, verification, event-driven, and hill-climbing."
+  description="Seven common AI loop setups, explained in plain language."
 >
   <section class="container page-hero">
-    <span class="eyebrow">the catalogue</span>
+    <span class="eyebrow">the guide</span>
     <h1>Loop patterns</h1>
-    <p class="lead">Seven patterns cover almost every agent loop. Each one is honest about when to use it, when to walk away, and how to start.</p>
+    <p class="lead">These are common ways to set up an AI that checks its work. Start with the smallest one that fits your task.</p>
     <div class="grid grid-2 pattern-card-grid">
       {PATTERNS.map((p, index) => (
         <a class="card pattern-card" href={`/patterns/${p.slug}`}>

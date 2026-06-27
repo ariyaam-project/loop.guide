@@ -38,21 +38,21 @@ const jsonLd = {
       <h2>When to use it</h2>
       <ul>{p.whenToUse.map((x) => <li>{x}</li>)}</ul>
 
-      <h2>When NOT to use it</h2>
+      <h2>When not to use it</h2>
       <ul>{p.whenNotToUse.map((x) => <li>{x}</li>)}</ul>
 
-      <h2>Anatomy</h2>
-      <pre><code>{p.anatomy.join("  →  ")}</code></pre>
+      <h2>How it works</h2>
+      <pre><code>{p.anatomy.join("  then  ")}</code></pre>
 
-      <h2>Watch-outs</h2>
+      <h2>Things to watch</h2>
       <ul>{p.watchOuts.map((x) => <li>{x}</li>)}</ul>
 
-      <h2>Starter checklist</h2>
+      <h2>How to start</h2>
       <ul>{p.starter.map((x) => <li>{x}</li>)}</ul>
 
       <div class="card" style="margin-top:2rem;background:var(--bg-soft);">
         <strong>Not sure this is the right loop?</strong>
-        <p class="dim" style="margin:0.4rem 0 0.8rem;">Describe your task and let the tool recommend a pattern.</p>
+        <p class="dim" style="margin:0.4rem 0 0.8rem;">Describe your task and get a plain-English recommendation.</p>
         <a class="btn btn-primary" href="/should-i-loop">Try “Should I Loop?”</a>
       </div>
     </div>

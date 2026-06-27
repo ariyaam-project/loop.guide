@@ -11,15 +11,15 @@ const jsonLd = {
       name: "How do I know if my AI task needs a loop?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Use a loop when the agent has feedback to react to. That covers running and verifying its own output, multi-step work with dependencies, or iterating until a condition is met. Use a single prompt for one deterministic transform, and a fixed chain for ordered steps with nothing to react to.",
+        text: "Use a loop when the AI needs to try something, check what happened, and use that result to decide the next move. Use one prompt for one clear answer. Use fixed steps when the order is already known.",
       },
     },
     {
       "@type": "Question",
-      name: "What's the difference between a loop, a chain, and a prompt?",
+      name: "What's the difference between a loop, fixed steps, and a prompt?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "A prompt is one shot in, one answer out. A chain runs fixed steps A→B→C. A loop is dynamic: act, observe the result, reason, and repeat until done.",
+        text: "A prompt is one instruction and one answer. Fixed steps are a known list of actions. A loop means the AI tries, checks the result, and tries again until the goal is reached.",
       },
     },
   ],
@@ -27,29 +27,29 @@ const jsonLd = {
 ---
 <BaseLayout
   title="Should I Loop?"
-  description="Describe your AI task. Get a verdict (loop, single prompt, or chain) with the reasoning and the recommended pattern."
+  description="Describe an AI task and get a plain-English answer: one prompt, fixed steps, or a loop."
   jsonLd={jsonLd}
 >
   <section class="container page-hero">
     <p class="kicker">the tool</p>
     <h1>Should I loop?</h1>
     <p class="lead" style="margin-bottom:1.9rem;">
-      Describe the task the way you would say it out loud. You get a verdict, loop, single prompt, or chain,
-      with the reasoning and the pattern to build it.
+      Describe the task in normal words. The tool tells you whether to use one prompt, fixed steps,
+      or a loop where the AI checks its work and tries again.
     </p>
     <ShouldILoop />
   </section>
 
   <section class="container section">
-    <h2>How the verdict works</h2>
+    <h2>How the answer works</h2>
     <div class="grid grid-2 prose">
       <div>
-        <p><strong>Single prompt.</strong> One deterministic transform with a single answer, like translate, summarize, or format. Nothing to react to.</p>
-        <p><strong>Chain.</strong> Several steps, but fixed and ordered, with nothing surprising between them. Predictable, and simpler than a loop.</p>
+        <p><strong>One prompt.</strong> One clear instruction with one answer, like translate, summarize, or format. The AI does not need to check anything after it answers.</p>
+        <p><strong>Fixed steps.</strong> Several steps, but the order is already known. This is simpler than a loop.</p>
       </div>
       <div>
-        <p><strong>Loop.</strong> The agent acts, observes a real result (tests, errors, data), reasons, and repeats until done. Use it when there is genuine feedback or iteration.</p>
-        <p><strong>Borderline.</strong> Signals are mixed. Start with the simplest option, and add a loop only if a single shot keeps falling short.</p>
+        <p><strong>Loop.</strong> The AI tries something, checks what happened, and uses that result to choose the next move.</p>
+        <p><strong>Need more detail.</strong> The task is unclear. Start simple, then add a loop only if the AI needs to react to results.</p>
       </div>
     </div>
   </section>

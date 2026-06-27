@@ -1,20 +1,20 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
-<BaseLayout title="About" description="What loops.guide is, and the method behind the Should I Loop? verdict.">
+<BaseLayout title="About" description="What loops.guide is, who it is for, and how the Should I Loop? tool works.">
   <article class="container prose narrow" style="padding-top:3rem;">
     <span class="eyebrow">about</span>
-    <h1 style="font-size:clamp(2rem,4.4vw,3rem);">A calmer way to decide</h1>
-    <p class="lead">loops.guide is a field guide and a tool for loop engineering: the craft of designing the systems that prompt and orchestrate AI agents, instead of hand‑prompting them one message at a time.</p>
+    <h1 style="font-size:clamp(2rem,4.4vw,3rem);">A simpler way to decide</h1>
+    <p class="lead">loops.guide helps beginners understand when an AI should answer once, follow a list of steps, or keep checking its work in a loop.</p>
 
     <h2>Why this exists</h2>
-    <p>The term <em>loop engineering</em> was coined in June 2026, the week Addy Osmani published his essay and Peter Steinberger compressed it to a sentence: stop prompting your agents, start designing the loops that prompt them. The leverage moved from crafting prompts to designing the control systems around the model.</p>
-    <p>There's plenty written about what loops <em>are</em>. There's almost nothing that helps you decide whether you need one. That's the gap loops.guide fills.</p>
+    <p>People are moving from hand-prompting AI tools toward building small systems around them. Those systems can try something, check what happened, and decide what to do next.</p>
+    <p>That is useful, but it is also easy to overbuild. Many tasks do not need a loop at all. This site helps you choose the smallest setup that works.</p>
 
     <h2>How the verdict works</h2>
-    <p>The “Should I Loop?” tool runs in two layers. First, a transparent heuristic reads your task for the signals that actually force a loop: iteration, verification, multi-step dependencies, external feedback, ambiguity, and scheduling. It returns a verdict, the reasoning, and a recommended pattern. When a language model is configured, a second layer refines that result. The heuristic always runs, so you get a sane answer with or without an LLM.</p>
+    <p>The "Should I Loop?" tool looks for simple clues in your task. Does the AI need to check its answer? Does it need to react to an error? Are there risky steps where a person should approve the work? The tool turns those clues into a plain recommendation.</p>
 
     <h2>Credits & sources</h2>
-    <p>Grounded in public work by Addy Osmani, Boris Cherny and the Claude Code team at Anthropic, LangChain, Cobus Greyling, and Swyx's “loopcraft” framing.</p>
+    <p>Grounded in public work and writing from people building AI agents and agent tooling, including Addy Osmani, Boris Cherny and the Claude Code team at Anthropic, LangChain, Cobus Greyling, and Swyx's loopcraft framing.</p>
   </article>
 </BaseLayout>

@@ -1,41 +1,96 @@
 ---
 title: "What is loop engineering?"
-description: "Loop engineering is the practice of designing the systems that prompt and orchestrate AI agents (act, observe, reason, repeat) instead of hand-prompting them one message at a time."
+description: "A plain-English explanation of loop engineering: when an AI should answer once, follow steps, or keep checking its work."
 pubDate: 2026-06-20
 updatedDate: 2026-06-27
 tags: ["fundamentals", "definitions"]
 ---
 
-**Loop engineering is the practice of designing, operating, and improving the feedback loops that let an AI agent do real work. The agent acts, observes the result, reasons about it, and repeats until a goal is met.** The shift is in where you add value: instead of typing each next instruction by hand, you design the system that prompts the agent for you.
+Loop engineering means designing the repeatable process around an AI.
 
-The term crystallized in June 2026. As Boris Cherny, who leads Claude Code at Anthropic, put it: "I don't prompt Claude anymore. I have loops running that prompt Claude and figure out what to do. My job is to write loops." Addy Osmani and Peter Steinberger framed the same move: stop prompting agents, start designing the loops that prompt them.
+Instead of asking the AI again and again by hand, you set up a simple cycle:
 
-## Why a loop, not a prompt
+1. The AI tries something.
+2. It checks what happened.
+3. It uses that result to decide the next move.
+4. It stops when the goal is reached.
 
-Real work is rarely solved in one shot. Code has hidden constraints, flaky tests, and legacy conventions. A single generated answer can't catch a runtime error or confirm that what it produced actually works. A loop closes that gap: the agent takes an action, sees a real result, and decides what to do next.
+That is a loop.
 
-This traces back to the **ReAct pattern** (Reason + Act) from research at Princeton and Google: interleave reasoning with action. Think, act, observe, think again.
+The important part is not the word "agent" or the newest model. The important part is feedback. If the AI gets a result it should react to, a loop can help.
 
-## Loop vs chain vs prompt
+## Why loops exist
 
-A **prompt** is one shot in, one answer out. A **chain** is linear: step A leads to B leads to C, fixed and predictable. A **loop** is dynamic, so the agent can retry, revise its approach, and only move on once feedback says it's done. The quality difference between agents usually comes down to loop design, not the base model.
+A normal prompt is one request and one answer.
 
-## What a good loop needs
+That works for many tasks:
 
-Five things make a loop work rather than spin:
+- rewrite this email
+- summarize this article
+- translate this paragraph
+- turn these notes into a checklist
 
-1. **A clear goal with a testable stop condition.** "All unit tests pass," not "make it better."
-2. **Tools to act and observe.** Code execution, file access, a shell, test runners.
-3. **Context management.** Summarize prior iterations so you don't overflow the window or repeat failed attempts.
-4. **Termination logic.** Success exits, failure exits ("after N iterations with no progress, escalate"), and tool-call budgets.
-5. **Error handling that adapts.** Distinguish recoverable errors from hard blockers, and never re-run the same failed approach.
+But some work cannot be finished in one answer.
 
-## Stacking loops
+The AI may need to check whether something worked. It may need to react to an error. It may need to compare a few options. It may need to ask a person before doing something risky.
 
-The most useful mental model stacks four levels: the **agent loop** (call tools until done), wrapped in a **verification loop** (grade output, send feedback back), embedded in an **event-driven loop** (a webhook or schedule triggers it), improved by a **hill-climbing loop** (analyze run traces and rewrite the harness itself). The first three automate work; the fourth automates improvement.
+That is where loops become useful.
 
-## The honest caveat
+## Prompt vs fixed steps vs loop
 
-Loop engineering amplifies judgment, both good and bad. Token costs explode with long-running, sub-agent-heavy loops. Verification is still on you: unattended loops make unattended mistakes. As Osmani warns, build the loop like someone who intends to stay the engineer, not just the person who presses go.
+Use **one prompt** when the task has one clear answer.
 
-Not sure whether your task even needs a loop? [Run it through the tool.](/should-i-loop)
+Use **fixed steps** when the order is already known:
+
+1. read the form
+2. summarize it
+3. send it to the right team
+
+Use **a loop** when the next step depends on what happened after the AI tried something.
+
+That is the whole difference.
+
+## A simple example
+
+Imagine you want an AI to draft a support reply.
+
+One prompt might be enough if you only need a first draft.
+
+A loop helps if the AI must also check the reply before it is finished:
+
+1. Draft the reply.
+2. Check whether it answers the customer's question.
+3. If something is missing, revise it.
+4. Stop when the reply is clear.
+
+The AI is not just writing. It is using the check to decide whether to keep going.
+
+## What every useful loop needs
+
+A loop needs a few basic pieces.
+
+**A clear goal.** The AI needs to know what "done" means.
+
+**A way to check the result.** This could be a checklist, a test, a customer response, a review, or a person saying yes.
+
+**A memory of what happened.** The AI should not repeat the same failed attempt forever.
+
+**A stop rule.** The loop should stop when it succeeds, when a person needs to decide, or when it has tried enough times.
+
+**A safety rule.** Risky actions should wait for human approval.
+
+Without those pieces, a loop can become an expensive repeat button.
+
+## The best beginner rule
+
+Ask this:
+
+**Is there anything for the AI to react to after it acts?**
+
+If yes, use a loop.
+
+If no, use one prompt or fixed steps.
+
+That is the core idea behind loops.guide. The tool reads your task, looks for the feedback point, and recommends the smallest setup that makes sense.
+
+Not sure about your task? [Run it through Should I Loop?](/should-i-loop)

@@ -18,7 +18,7 @@ const jsonLd = {
   name: "loops.guide",
   url: "https://loops.guide",
   description:
-    "A practical field guide to loop engineering: how AI agents act, observe, verify, and repeat, and when to use each pattern.",
+    "A practical guide that helps beginners decide when an AI should answer once, follow fixed steps, or keep checking its work in a loop.",
 };
 ---
 <BaseLayout jsonLd={jsonLd}>
@@ -26,18 +26,18 @@ const jsonLd = {
   <section class="hero-system">
     <div class="container hero-system-inner">
       <div class="hero-content">
-        <p class="kicker">a practical guide to loop engineering</p>
-        <h1 class="display">Loop engineering, made practical.</h1>
+        <p class="kicker">a beginner-friendly guide to AI loops</p>
+        <h1 class="display">Know when your AI should keep trying.</h1>
         <p class="lead">
-          Learn how AI agents act, observe, verify, and repeat. Then use the decision tool to choose between a
-          prompt, a fixed chain, and a real feedback loop.
+          Some AI tasks need one clear instruction. Some need a few fixed steps. Some need the AI to try,
+          check what happened, and try again. loops.guide helps you tell the difference.
         </p>
         <div class="cta-row">
           <a class="btn btn-primary" href="/blog/what-is-loop-engineering">Read the guide</a>
           <a class="btn btn-ghost" href="/should-i-loop">Check a task</a>
         </div>
         <p class="byline" style="margin-top:1.25rem;">
-          Start with the concept, then map your own workflow to the lightest pattern that can actually do the job.
+          Start simple. Add a loop only when the AI needs to learn from the result of its last try.
         </p>
       </div>
       <HeroSystemDiagram />
@@ -47,29 +47,29 @@ const jsonLd = {
   <!-- WORKED EXAMPLE -->
   <section class="container section">
     <div style="max-width:62ch;">
-      <h2>Three tasks, three honest answers</h2>
-      <p class="dim">Same model, same tools. The right shape changes with the task, not the hype.</p>
+      <h2>Three tasks, three different setups</h2>
+      <p class="dim">The right answer depends on what the AI has to do after its first try.</p>
     </div>
     <div class="tasklog" style="margin-top:1.6rem;">
       <div class="row">
-        <div class="t">“Translate this changelog into French.”</div>
+        <div class="t">"Translate this changelog into French."</div>
         <div class="a">
-          <span class="v v-single">SINGLE PROMPT</span>
-          <p style="margin:0.5rem 0 0;"><b>Nothing to react to.</b> One input, one correct-enough output. A loop here just adds latency and cost.</p>
+          <span class="v v-single">ONE PROMPT</span>
+          <p style="margin:0.5rem 0 0;"><b>Ask once.</b> The AI does not need to check anything after it answers.</p>
         </div>
       </div>
       <div class="row">
-        <div class="t">“Fix the failing tests, and keep going until they pass.”</div>
+        <div class="t">"Fix the failing tests, and keep going until they pass."</div>
         <div class="a">
           <span class="v v-loop">LOOP</span>
-          <p style="margin:0.5rem 0 0;"><b>It has to run them.</b> Read the failure, change something, run again. That feedback is the whole job, so it needs a loop.</p>
+          <p style="margin:0.5rem 0 0;"><b>It has to check its work.</b> The AI tries a fix, sees what failed, and tries again.</p>
         </div>
       </div>
       <div class="row">
-        <div class="t">“Scaffold the API, then add auth, then write the docs.”</div>
+        <div class="t">"Create the API, then add login, then write the docs."</div>
         <div class="a">
-          <span class="v v-chain">CHAIN</span>
-          <p style="margin:0.5rem 0 0;"><b>Fixed order, no surprises.</b> Three known steps in sequence. A plain chain is simpler and easier to trust than a loop.</p>
+          <span class="v v-chain">FIXED STEPS</span>
+          <p style="margin:0.5rem 0 0;"><b>The order is already known.</b> It can follow the list without deciding what to do next.</p>
         </div>
       </div>
     </div>
@@ -79,15 +79,14 @@ const jsonLd = {
   <section id="how" class="container section">
     <div class="media-section">
       <div>
-        <h2>The test I actually use</h2>
+        <h2>The simple test</h2>
         <p style="font-size:1.18rem;line-height:1.6;">
-          Is there anything for the model to <em>react</em> to? If acting produces information it should use next,
-          like an error, a test result, a diff, a price, then you want a loop. If it doesn’t, you are paying for a
-          loop and getting a prompt.
+          Ask one question: after the AI tries something, will it learn anything useful from the result?
+          If yes, it probably needs a loop. If no, one prompt or a short list of steps is usually enough.
         </p>
         <p class="dim">
-          That is the core of it. The rest is knowing which loop, and when to put a human in front of the risky
-          parts. The tool runs this same logic on your wording, then names a pattern. You stay the engineer.
+          A loop is useful when the AI must check its work, react to an error, compare results, or ask a person
+          before doing something risky. The tool turns your task into a plain recommendation.
         </p>
         <p style="margin-top:1.4rem;"><a class="btn btn-primary" href="/should-i-loop">Run it on your task</a></p>
       </div>
@@ -100,9 +99,9 @@ const jsonLd = {
     <div class="media-section media-section-flipped">
       <PatternAtlas />
       <div>
-        <p class="kicker">the catalogue</p>
-        <h2>Seven loops worth knowing by name</h2>
-        <p class="dim">Each page is blunt about when the pattern fits, when to walk away, and how to start small.</p>
+        <p class="kicker">common setups</p>
+        <h2>Seven useful loop types</h2>
+        <p class="dim">Each one explains when to use it, when to avoid it, and how to start without overbuilding.</p>
       </div>
     </div>
     <ol class="toc" style="margin-top:1.6rem;">
@@ -124,21 +123,21 @@ const jsonLd = {
   <!-- DEFINITIONS -->
   <section class="container section">
     <div style="max-width:62ch;">
-      <h2>If you only remember one distinction</h2>
-      <p class="dim">Reach for the lightest one that does the job. Move up only when it stops being enough.</p>
+      <h2>If you remember one thing</h2>
+      <p class="dim">Use the smallest setup that can do the job. Move up only when it stops working.</p>
     </div>
     <div class="defs" style="margin-top:1.4rem;">
       <div class="d">
         <div class="term">Prompt</div>
-        <div class="def"><b>One shot in, one answer out.</b> Best when the task is a single deterministic transform and there is no feedback worth reading.</div>
+        <div class="def"><b>Ask once, get one answer.</b> Best for clear jobs like translate, summarize, or rewrite.</div>
       </div>
       <div class="d">
-        <div class="term">Chain</div>
-        <div class="def"><b>Fixed steps in order.</b> A to B to C, decided in advance. Predictable, traceable, and nothing between the steps surprises you.</div>
+        <div class="term">Fixed steps</div>
+        <div class="def"><b>Do step 1, then step 2, then step 3.</b> Best when the order is known before the AI starts.</div>
       </div>
       <div class="d">
         <div class="term">Loop</div>
-        <div class="def"><b>Act, observe, decide, repeat.</b> For real feedback and genuine iteration, where the next move depends on what just happened.</div>
+        <div class="def"><b>Try, check, then try again.</b> Best when the next move depends on what just happened.</div>
       </div>
     </div>
   </section>
@@ -147,8 +146,8 @@ const jsonLd = {
   {posts.length > 0 && (
     <section class="container section">
       <div style="max-width:62ch;">
-        <p class="kicker">field notes</p>
-        <h2>Recent writing</h2>
+        <p class="kicker">learn more</p>
+        <h2>Beginner-friendly guides</h2>
       </div>
       <div class="postlist" style="margin-top:1.4rem;">
         {posts.slice(0, 4).map((p) => (
@@ -166,8 +165,7 @@ const jsonLd = {
   <!-- CREDITS -->
   <section class="container">
     <p class="byline" style="max-width:62ch;">
-      Built on the people who named this work: Addy Osmani, Boris Cherny and the Claude Code team at Anthropic,
-      the LangChain crew, and Cobus Greyling. Their links live on the
+      Built from practical ideas shared by people working on AI agents and agent tooling. Sources and credits live on the
       <a href="/about">about page</a>.
     </p>
   </section>

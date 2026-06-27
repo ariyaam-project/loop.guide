@@ -1,60 +1,86 @@
 ---
-title: "Loop vs chain vs prompt: which do you actually need?"
-description: "A practical decision guide for choosing between a single prompt, a fixed chain, and an agent loop, with the exact signals that tip you from one to the next."
+title: "One prompt, fixed steps, or a loop?"
+description: "A beginner-friendly guide to choosing the simplest setup for an AI task."
 pubDate: 2026-06-23
 tags: ["fundamentals", "decision"]
 ---
 
-Most AI tasks don't need a loop. Some need nothing more than a good prompt. The skill is knowing where the line is, because the wrong choice either wastes tokens (a loop where a prompt would do) or fails silently (a prompt where you needed feedback).
+Most AI tasks do not need a loop.
 
-Here's the practical breakdown.
+Some tasks only need one clear instruction. Some need a short list of steps. A loop is only worth it when the AI needs to learn something from the result of its own action.
 
-## Single prompt
+That is the simple rule:
 
-One shot in, one answer out. Use it when the task is a **deterministic transform with a single answer** and there's nothing to react to.
+**If the AI has nothing new to react to after it acts, do not use a loop.**
 
-- Translate this paragraph.
-- Summarize this document.
-- Convert this JSON to a table.
-- Classify this ticket.
+## Use one prompt when the job has one clear answer
 
-If you can't imagine the model needing to "check its work" against anything external, you almost certainly want a single prompt.
+A prompt is the simplest setup.
 
-## Chain
+You ask once. The AI answers once. Nothing needs to be checked afterward before the AI can continue.
 
-A fixed sequence: A → B → C. Use it for **multiple steps that are ordered and known in advance**, where each step's output feeds the next but nothing surprising happens between them.
+Good examples:
 
-- Extract entities → look each up → format the result.
-- Transcribe audio → summarize → translate.
+- Rewrite this email in a friendlier tone.
+- Translate this paragraph into French.
+- Summarize this article.
+- Turn these notes into bullet points.
 
-Chains are predictable and easy to trace. The tell: you can write the steps down up front and they won't change based on what the model sees.
+The test is simple: after the AI answers, would another AI action reveal important new information?
 
-## Loop
+If the answer is no, use one prompt.
 
-Act → observe → reason → repeat. Use it when there is **real feedback to react to, or genuine iteration**.
+## Use fixed steps when the order is already known
 
-- Fix the failing tests and keep going until they pass. (verification + iteration)
-- Debug this error, where you don't know the cause yet. (exploration)
-- Refactor this module without breaking anything. (multi-step + verify each step)
-- Every morning, triage new issues and draft replies. (event-driven)
+Fixed steps are useful when the work has a clear order.
 
-The tell: the right next action depends on a result the model can only get by *doing* something first.
+The AI does step 1, then step 2, then step 3. The steps do not change based on surprise results.
 
-## The signals that tip you toward a loop
+Good examples:
 
-You're in loop territory if any of these are true:
+- Read a form, summarize it, then send it to the right team.
+- Extract names from a document, put them in a table, then write a short summary.
+- Take meeting notes, group action items, then draft a follow-up email.
 
-| Signal | Why it forces a loop |
+The test: can you write the steps before the AI starts?
+
+If yes, and the steps will not change, use fixed steps.
+
+## Use a loop when the AI must react to what happened
+
+A loop means:
+
+1. Try something.
+2. Check what happened.
+3. Use that result to decide the next move.
+4. Stop when the goal is reached.
+
+Good examples:
+
+- Draft a reply, check whether it answers the customer, and revise if needed.
+- Fix a broken page, check whether it works, and keep going until it does.
+- Review new support messages every morning and flag the ones that need a person.
+- Try a few versions of a response, compare them, and keep the best one.
+
+The test: does acting produce information the AI should use next?
+
+If yes, use a loop.
+
+## The easiest decision table
+
+| Task shape | Best setup |
 |---|---|
-| Needs to run/verify its own output | Must act → check → revise |
-| Multi-step with dependencies | Later steps depend on observing earlier ones |
-| Real external feedback (errors, data, API) | Wasted unless the agent reacts to it |
-| Explicit iteration ("until it passes") | A loop by definition |
-| Runs on a schedule or trigger | Event-driven loop, not a one-shot |
-| Should improve over many runs | Needs an outer hill-climbing loop |
+| One clear answer | One prompt |
+| A known list of steps | Fixed steps |
+| Try, check, then decide what to do next | Loop |
+| Risky choice or human judgment | Loop with human approval |
 
-## When it's borderline
+## When you are unsure
 
-Signals conflict more often than you'd think. The rule: **start with the simplest thing that could work, and add a loop only when single-shot output demonstrably falls short.** A loop you didn't need is just a more expensive, slower, harder-to-debug prompt.
+Start simple.
 
-Want this decision made for you on a specific task? [Try the tool →](/should-i-loop)
+Use one prompt first. If the answer is good enough, stop there. If the AI needs to check something, react to an error, compare options, or ask a person before moving forward, upgrade to a loop.
+
+A loop should earn its place. It costs more time, more attention, and usually more money. Use it when the task actually gives the AI something useful to react to.
+
+Want a recommendation for your own task? [Try Should I Loop?](/should-i-loop)

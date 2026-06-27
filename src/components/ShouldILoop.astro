@@ -12,21 +12,21 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
         Describe the task you want the AI to do
       </label>
       <textarea id={`${id}-task`} class="task" data-task
-        placeholder="e.g. Fix the failing tests in this module and keep going until they all pass"></textarea>
+        placeholder="e.g. Sort new customer emails and draft replies until each one has a clear answer"></textarea>
 
       <div class="examples" data-examples>
-        <button type="button" class="chip" data-ex="Translate this paragraph into French.">single-prompt example</button>
-        <button type="button" class="chip" data-ex="First scaffold the API, then add auth, then write the README, in that order.">chain example</button>
-        <button type="button" class="chip" data-ex="Fix the failing tests in this repo and keep iterating until they all pass.">loop example</button>
+        <button type="button" class="chip" data-ex="Rewrite this email in a friendlier tone.">one-prompt example</button>
+        <button type="button" class="chip" data-ex="Read this form, write a summary, then send it to the right team.">fixed-steps example</button>
+        <button type="button" class="chip" data-ex="Check every new support message, draft a reply, and keep revising until the reply answers the customer.">loop example</button>
       </div>
 
       {!compact && (
         <div class="signals" data-signals>
-          <label><input type="checkbox" data-sig="needsVerification" /> It needs to run / verify its own output (tests, checks)</label>
-          <label><input type="checkbox" data-sig="multiStep" /> Multiple steps where later steps depend on earlier results</label>
-          <label><input type="checkbox" data-sig="externalFeedback" /> There's real feedback to react to (errors, data, API)</label>
-          <label><input type="checkbox" data-sig="deterministicSingle" /> It's one deterministic transform / a single answer</label>
-          <label><input type="checkbox" data-sig="ambiguity" /> Ambiguous, and likely to need human judgment</label>
+          <label><input type="checkbox" data-sig="needsVerification" /> The AI needs to check whether its answer worked</label>
+          <label><input type="checkbox" data-sig="multiStep" /> A later step depends on what happens earlier</label>
+          <label><input type="checkbox" data-sig="externalFeedback" /> The AI will see new information after it tries</label>
+          <label><input type="checkbox" data-sig="deterministicSingle" /> It is one clear answer</label>
+          <label><input type="checkbox" data-sig="ambiguity" /> A person may need to decide or approve something</label>
         </div>
       )}
 
@@ -42,7 +42,7 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
   </div>
   {!compact && (
     <p class="dim" style="font-size:0.82rem;margin-top:0.75rem;">
-      Heuristic by default; sharper with an LLM when configured. Inputs aren't stored.
+      The tool gives a simple recommendation. Your text is not stored.
     </p>
   )}
 </div>

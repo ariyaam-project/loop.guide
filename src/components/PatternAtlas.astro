@@ -3,15 +3,15 @@ import { PATTERNS } from "../lib/patterns";
 
 const atlasCopy = {
   "retry": ["Retry", "try, check, retry"],
-  "plan-execute-verify": ["Plan Verify", "plan, test, revise"],
-  "explore-narrow": ["Explore", "branch, compare, narrow"],
-  "human-in-the-loop": ["Human Gate", "pause on judgment"],
-  "verification": ["Evaluator", "grade before shipping"],
-  "event-driven": ["Event Run", "wake, act, wait"],
-  "hill-climbing": ["Hill-Climb", "measure and improve"],
+  "plan-execute-verify": ["Plan Check", "plan, do, check"],
+  "explore-narrow": ["Try Options", "try, compare, choose"],
+  "human-in-the-loop": ["Human Approval", "ask before risk"],
+  "verification": ["Checker", "check before done"],
+  "event-driven": ["Triggered", "wake, work, wait"],
+  "hill-climbing": ["Improve", "learn from past runs"],
 } as const;
 ---
-<div class="system-visual pattern-atlas" aria-label="Atlas of loop engineering patterns">
+<div class="system-visual pattern-atlas" aria-label="Seven common AI loop setups">
   <div class="system-bar">
     <span>pattern atlas</span>
     <span class="system-bar-note">seven loop shapes</span>

@@ -1,35 +1,35 @@
-<div class="system-visual decision-diagram" aria-label="Decision diagram for choosing prompt, chain, or loop">
+<div class="system-visual decision-diagram" aria-label="Decision diagram for choosing one prompt, fixed steps, or a loop">
   <div class="system-bar">
-    <span>decision test</span>
-    <span class="system-bar-note">choose the lightest pattern</span>
+    <span>simple test</span>
+    <span class="system-bar-note">choose the smallest setup</span>
   </div>
   <div class="decision-body">
     <div class="decision-question">
       <span class="decision-dot"></span>
-      <strong>Does acting create information the agent should use next?</strong>
+      <strong>Will the AI learn something after it tries?</strong>
     </div>
 
     <div class="decision-path path-single">
-      <span class="verdict-chip vc-single">PROMPT</span>
+      <span class="verdict-chip vc-single">ONE PROMPT</span>
       <div>
-        <strong>No feedback</strong>
-        <small>One clear transform. One answer out.</small>
+        <strong>No new information</strong>
+        <small>Ask once. Get one answer.</small>
       </div>
     </div>
 
     <div class="decision-path path-chain">
-      <span class="verdict-chip vc-chain">CHAIN</span>
+      <span class="verdict-chip vc-chain">FIXED STEPS</span>
       <div>
-        <strong>Known sequence</strong>
-        <small>Several fixed steps, decided in advance.</small>
+        <strong>The order is known</strong>
+        <small>Do step 1, then step 2, then step 3.</small>
       </div>
     </div>
 
     <div class="decision-path path-loop">
       <span class="verdict-chip vc-loop">LOOP</span>
       <div>
-        <strong>Real feedback</strong>
-        <small>Act, observe, revise, and repeat until done.</small>
+        <strong>It needs feedback</strong>
+        <small>Try, check what happened, then try again.</small>
       </div>
     </div>
   </div>

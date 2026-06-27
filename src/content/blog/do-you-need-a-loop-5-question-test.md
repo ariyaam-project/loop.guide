@@ -1,44 +1,87 @@
 ---
 title: "Do you need a loop? A 5-question test"
-description: "Five yes/no questions that tell you whether your AI task needs an agent loop, and which loop pattern to reach for if it does."
+description: "Five plain-English questions that help beginners decide whether an AI task needs a loop."
 pubDate: 2026-06-26
 tags: ["decision", "patterns"]
 ---
 
-You don't need a framework to decide whether a task needs a loop. You need five questions. Answer them honestly and the verdict is usually obvious.
+You do not need a technical framework to decide whether an AI task needs a loop.
 
-## 1. Does the agent need to verify its own output?
+You only need five questions.
 
-If success means passing a test, matching a schema, or clearing a check the model can run, you need a loop: act, check, revise. A prompt can't confirm its own work.
+If you answer yes to any of the questions below, a loop may help. If you answer no to all of them, start with one prompt or fixed steps.
 
-→ Leans **loop**. Pattern: [Verification / Evaluator](/patterns/verification) or [Retry](/patterns/retry).
+## 1. Will the AI learn something useful after it tries?
 
-## 2. Is it multiple steps where later steps depend on earlier results?
+This is the main question.
 
-If step 3 can't be planned until you see the output of step 2, that dependency needs observation between steps.
+If the AI tries something and gets a useful result back, it should probably use that result before doing the next thing.
 
-→ Leans **loop**. Pattern: [Plan → Execute → Verify](/patterns/plan-execute-verify). If the steps are fixed and nothing surprising happens between them, it's just a **chain**.
+Examples:
 
-## 3. Is there real feedback to react to?
+- An error message appears.
+- A customer reply comes in.
+- A test passes or fails.
+- A file changes.
+- A reviewer says yes or no.
 
-Errors, API responses, query results, file contents, browser state. If acting produces information the model should use, a single shot throws that information away.
+If nothing useful comes back, a loop is probably extra weight.
 
-→ Leans **loop**. Pattern: [Explore → Narrow](/patterns/explore-narrow) for unknowns; [Retry](/patterns/retry) for clear pass/fail.
+## 2. Does the AI need to check whether the work is good enough?
 
-## 4. Is it ambiguous or risky?
+Some tasks need a check before they can be trusted.
 
-If requirements can't be fully specified up front, or an action is irreversible (deploys, payments, prod writes), you want iteration plus a human gate.
+Examples:
 
-→ Leans **loop with a gate**. Pattern: [Human-in-the-Loop](/patterns/human-in-the-loop).
+- The reply must actually answer the customer.
+- The page must work after the change.
+- The document must include all required sections.
+- The task should stop only when a clear rule is true.
 
-## 5. Should it run continuously or improve over time?
+If the AI must check the result and revise it, use a [Retry Loop](/patterns/retry) or [Checker Loop](/patterns/verification).
 
-If it's triggered by events or a schedule, you want an [Event-Driven](/patterns/event-driven) loop. If it should get better across many runs from its own traces, you want a [Hill-Climbing](/patterns/hill-climbing) loop on top.
+## 3. Can the next step change based on what happened earlier?
 
-## Scoring
+Fixed steps are fine when the order never changes.
 
-- **Zero yeses** → single prompt. Don't over-engineer it.
-- **Yeses only on "fixed multiple steps"** → a chain, not a loop.
-- **One or more yeses on verification, feedback, iteration, ambiguity, or scheduling** → a loop, and the questions above point you straight at the pattern.
+But if step 3 depends on what happened in step 2, the AI needs a loop. It has to look at the result before choosing the next move.
 
-This is exactly the logic behind the [Should I Loop?](/should-i-loop) tool. It reads these signals from your task description and returns the verdict plus the recommended pattern. [Try it on a real task.](/should-i-loop)
+Use a [Plan and Check Loop](/patterns/plan-execute-verify) when the task has several parts and each part should be checked.
+
+## 4. Is there a risky choice a person should approve?
+
+Some tasks should pause before important actions.
+
+Examples:
+
+- spending money
+- deleting data
+- publishing publicly
+- sending a sensitive message
+- changing something customers depend on
+
+In those cases, use a [Human Approval Loop](/patterns/human-in-the-loop). The AI can prepare the work, but a person approves the risky step.
+
+## 5. Should this happen again and again?
+
+Some tasks are not one-time tasks.
+
+Examples:
+
+- check new messages every morning
+- watch for failed orders
+- review new support tickets
+- summarize new issues once a day
+
+If the task wakes up on a schedule or after a new event, use a [Triggered Loop](/patterns/event-driven).
+
+## Simple scoring
+
+- **No yes answers:** use one prompt.
+- **Only fixed known steps:** use fixed steps.
+- **One or more yes answers:** use a loop.
+- **Risky action involved:** use a loop with human approval.
+
+The goal is not to make everything a loop. The goal is to choose the smallest setup that can do the job.
+
+This is the same logic behind [Should I Loop?](/should-i-loop). Describe your task, and the tool turns it into a plain recommendation.

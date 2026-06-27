@@ -120,14 +120,14 @@ export function analyze(input: AnalyzeInput): AnalyzeResult {
   let loop = 0;
   const reasons: string[] = [];
 
-  if (signals.iteration) { loop += 2.5; reasons.push("You describe iterating until something is right, which is a loop by definition."); }
-  if (signals.needsVerification) { loop += 2; reasons.push("The output needs to be verified (tests/checks), so the agent should act → check → revise."); }
-  if (signals.externalFeedback) { loop += 1.5; reasons.push("There's real feedback to react to (errors, data, file results), which is wasted unless the agent loops on it."); }
-  if (signals.multiStep) { loop += 1.5; reasons.push("It's multi-step with dependencies, so later steps depend on observing earlier ones."); }
-  if (signals.scheduled) { loop += 3; reasons.push("It runs on a schedule or trigger, so it's an event-driven loop, not a one-shot call."); }
-  if (signals.improvement) { loop += 1; reasons.push("You want it to improve over repeated runs, which needs an outer hill-climbing loop."); }
-  if (signals.risky) { loop += 1; reasons.push("An irreversible or sensitive action is involved, so run it in a loop with a human gate."); }
-  if (signals.ambiguity) { loop += 0.5; reasons.push("Ambiguity/judgment is involved, which usually needs iteration and a human gate."); }
+  if (signals.iteration) { loop += 2.5; reasons.push("You want the AI to keep trying until the result is good enough."); }
+  if (signals.needsVerification) { loop += 2; reasons.push("The AI needs to check whether the result worked before it stops."); }
+  if (signals.externalFeedback) { loop += 1.5; reasons.push("The AI will get new information after it acts, so it should use that before choosing the next step."); }
+  if (signals.multiStep) { loop += 1.5; reasons.push("A later step may depend on what happens earlier."); }
+  if (signals.scheduled) { loop += 3; reasons.push("This needs to run again when a schedule or new event happens."); }
+  if (signals.improvement) { loop += 1; reasons.push("You want the setup to learn from past runs and get better over time."); }
+  if (signals.risky) { loop += 1; reasons.push("A sensitive or important action is involved, so a person should approve it."); }
+  if (signals.ambiguity) { loop += 0.5; reasons.push("A person may need to make a judgment call before the AI continues."); }
 
   let single = 0;
   if (signals.deterministicSingle) { single += 3; }
@@ -138,22 +138,22 @@ export function analyze(input: AnalyzeInput): AnalyzeResult {
   if (single >= 3 && loop < 2) {
     verdict = "single";
     reasons.length = 0;
-    reasons.push("This looks like one deterministic transform with a single answer.");
-    reasons.push("No verification, iteration, or external feedback to react to, so a single well-crafted prompt should do it.");
+    reasons.push("This looks like one clear task with one answer.");
+    reasons.push("There is nothing new for the AI to react to after it answers.");
   } else if (signals.multiStep && loop < 3.5 && !signals.iteration && !signals.needsVerification && !signals.externalFeedback) {
     verdict = "chain";
     reasons.length = 0;
-    reasons.push("It's multiple steps, but they're fixed and ordered with nothing to react to.");
-    reasons.push("A linear chain (A → B → C) is simpler and more predictable than a loop here.");
+    reasons.push("There are multiple steps, but the order is already known.");
+    reasons.push("Use fixed steps instead of a loop because the AI does not need to react to a new result.");
   } else if (loop >= 3) {
     verdict = "loop";
   } else if (loop >= 1.5) {
     verdict = "borderline";
-    reasons.unshift("Signals are mixed. A loop helps but isn't clearly required, so start simple and add one only if a single shot keeps falling short.");
+    reasons.unshift("This is close. Start simple, then add a loop only if the AI needs to react to results.");
   } else {
     verdict = "single";
     if (reasons.length === 0) {
-      reasons.push("No strong signals for iteration, verification, or feedback were detected, so try a single prompt first.");
+      reasons.push("This does not clearly need repeated checking, so try one prompt first.");
     }
   }
 
@@ -178,8 +178,8 @@ export function analyze(input: AnalyzeInput): AnalyzeResult {
 }
 
 export const VERDICT_LABEL: Record<Verdict, string> = {
-  loop: "LOOP",
-  single: "SINGLE PROMPT",
-  chain: "CHAIN",
-  borderline: "BORDERLINE",
+  loop: "USE A LOOP",
+  single: "ONE PROMPT",
+  chain: "FIXED STEPS",
+  borderline: "NEED MORE DETAIL",
 };

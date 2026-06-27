@@ -1,6 +1,6 @@
 export const SITE_TITLE = "loops.guide";
 export const SITE_DESCRIPTION =
-  "loops.guide explains loop engineering: how AI agents act, observe, verify, and repeat, and when to use a prompt, chain, or feedback loop.";
+  "loops.guide helps you decide when an AI should answer once, follow fixed steps, or keep checking its work in a loop.";
 export const SITE_URL = "https://loops.guide";
 export const SOCIAL = {
   github: "https://github.com/",
