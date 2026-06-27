@@ -1,99 +1,174 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import ShouldILoop from "../components/ShouldILoop.astro";
+import DecisionDiagram from "../components/DecisionDiagram.astro";
+import HeroSystemDiagram from "../components/HeroSystemDiagram.astro";
+import PatternAtlas from "../components/PatternAtlas.astro";
 import { PATTERNS } from "../lib/patterns";
 import { getCollection } from "astro:content";
 
 const posts = (await getCollection("blog"))
   .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 3);
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "loop.guide",
-  url: "https://loop.guide",
-  description: "The hub and tool for loop engineering — decide when your AI task needs a loop, and get the right pattern.",
+  name: "loops.guide",
+  url: "https://loops.guide",
+  description:
+    "A practical field guide to loop engineering: how AI agents act, observe, verify, and repeat, and when to use each pattern.",
 };
 ---
 <BaseLayout jsonLd={jsonLd}>
-  <section class="container hero center">
-    <span class="tag">loop engineering · since June 2026</span>
-    <h1>Should your AI task be a loop?</h1>
-    <p class="lead" style="margin-left:auto;margin-right:auto;">
-      Everyone explains loops. We help you <strong>decide</strong>. Describe a task, get a verdict and the
-      right pattern — then go deep with the guides.
-    </p>
-    <div class="cta-row" style="justify-content:center;">
-      <a class="btn btn-primary" href="/should-i-loop">Try “Should I Loop?”</a>
-      <a class="btn" href="/blog/what-is-loop-engineering">Read the guide</a>
+  <!-- HERO -->
+  <section class="hero-system">
+    <div class="container hero-system-inner">
+      <div class="hero-content">
+        <p class="kicker">a practical guide to loop engineering</p>
+        <h1 class="display">Loop engineering, made practical.</h1>
+        <p class="lead">
+          Learn how AI agents act, observe, verify, and repeat. Then use the decision tool to choose between a
+          prompt, a fixed chain, and a real feedback loop.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="/blog/what-is-loop-engineering">Read the guide</a>
+          <a class="btn btn-ghost" href="/should-i-loop">Check a task</a>
+        </div>
+        <p class="byline" style="margin-top:1.25rem;">
+          Start with the concept, then map your own workflow to the lightest pattern that can actually do the job.
+        </p>
+      </div>
+      <HeroSystemDiagram />
     </div>
   </section>
 
-  <section class="container" style="margin-top:1.5rem;">
-    <ShouldILoop compact={true} />
-    <p class="center dim" style="margin-top:0.6rem;font-size:0.85rem;">
-      Want the toggles and starter checklist? <a href="/should-i-loop">Open the full tool →</a>
-    </p>
+  <!-- WORKED EXAMPLE -->
+  <section class="container section">
+    <div style="max-width:62ch;">
+      <h2>Three tasks, three honest answers</h2>
+      <p class="dim">Same model, same tools. The right shape changes with the task, not the hype.</p>
+    </div>
+    <div class="tasklog" style="margin-top:1.6rem;">
+      <div class="row">
+        <div class="t">“Translate this changelog into French.”</div>
+        <div class="a">
+          <span class="v v-single">SINGLE PROMPT</span>
+          <p style="margin:0.5rem 0 0;"><b>Nothing to react to.</b> One input, one correct-enough output. A loop here just adds latency and cost.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="t">“Fix the failing tests, and keep going until they pass.”</div>
+        <div class="a">
+          <span class="v v-loop">LOOP</span>
+          <p style="margin:0.5rem 0 0;"><b>It has to run them.</b> Read the failure, change something, run again. That feedback is the whole job, so it needs a loop.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="t">“Scaffold the API, then add auth, then write the docs.”</div>
+        <div class="a">
+          <span class="v v-chain">CHAIN</span>
+          <p style="margin:0.5rem 0 0;"><b>Fixed order, no surprises.</b> Three known steps in sequence. A plain chain is simpler and easier to trust than a loop.</p>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <section class="container">
-    <h2>The seven loops</h2>
-    <p class="dim" style="margin-top:-0.5rem;">Pick the pattern that fits the task. The tool recommends from these.</p>
-    <div class="grid grid-3" style="margin-top:1rem;">
-      {PATTERNS.map((p) => (
-        <a class="card" href={`/patterns/${p.slug}`}>
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
-            <strong>{p.name}</strong>
-            <span class="tag">{p.cost} cost</span>
-          </div>
-          <p class="dim" style="margin:0.5rem 0 0;font-size:0.92rem;">{p.tagline}</p>
-        </a>
+  <!-- THE TEST -->
+  <section id="how" class="container section">
+    <div class="media-section">
+      <div>
+        <h2>The test I actually use</h2>
+        <p style="font-size:1.18rem;line-height:1.6;">
+          Is there anything for the model to <em>react</em> to? If acting produces information it should use next,
+          like an error, a test result, a diff, a price, then you want a loop. If it doesn’t, you are paying for a
+          loop and getting a prompt.
+        </p>
+        <p class="dim">
+          That is the core of it. The rest is knowing which loop, and when to put a human in front of the risky
+          parts. The tool runs this same logic on your wording, then names a pattern. You stay the engineer.
+        </p>
+        <p style="margin-top:1.4rem;"><a class="btn btn-primary" href="/should-i-loop">Run it on your task</a></p>
+      </div>
+      <DecisionDiagram />
+    </div>
+  </section>
+
+  <!-- PATTERN INDEX -->
+  <section class="container section">
+    <div class="media-section media-section-flipped">
+      <PatternAtlas />
+      <div>
+        <p class="kicker">the catalogue</p>
+        <h2>Seven loops worth knowing by name</h2>
+        <p class="dim">Each page is blunt about when the pattern fits, when to walk away, and how to start small.</p>
+      </div>
+    </div>
+    <ol class="toc" style="margin-top:1.6rem;">
+      {PATTERNS.map((p, i) => (
+        <li>
+          <a href={`/patterns/${p.slug}`}>
+            <span class="n">{String(i + 1).padStart(2, "0")}</span>
+            <span>
+              <span class="nm">{p.name}</span>
+              <span class="ds" style="display:block;margin-top:0.2rem;">{p.tagline}</span>
+            </span>
+            <span class="meta">{p.cost} cost · {p.risk} risk</span>
+          </a>
+        </li>
       ))}
+    </ol>
+  </section>
+
+  <!-- DEFINITIONS -->
+  <section class="container section">
+    <div style="max-width:62ch;">
+      <h2>If you only remember one distinction</h2>
+      <p class="dim">Reach for the lightest one that does the job. Move up only when it stops being enough.</p>
+    </div>
+    <div class="defs" style="margin-top:1.4rem;">
+      <div class="d">
+        <div class="term">Prompt</div>
+        <div class="def"><b>One shot in, one answer out.</b> Best when the task is a single deterministic transform and there is no feedback worth reading.</div>
+      </div>
+      <div class="d">
+        <div class="term">Chain</div>
+        <div class="def"><b>Fixed steps in order.</b> A to B to C, decided in advance. Predictable, traceable, and nothing between the steps surprises you.</div>
+      </div>
+      <div class="d">
+        <div class="term">Loop</div>
+        <div class="def"><b>Act, observe, decide, repeat.</b> For real feedback and genuine iteration, where the next move depends on what just happened.</div>
+      </div>
     </div>
   </section>
 
-  <section class="container">
-    <h2>Loop vs Chain vs Prompt</h2>
-    <div class="grid grid-3" style="margin-top:1rem;">
-      <div class="card">
-        <strong>Prompt</strong>
-        <p class="dim" style="margin:0.5rem 0 0;">One shot in, one answer out. Best for deterministic single transforms.</p>
-      </div>
-      <div class="card">
-        <strong>Chain</strong>
-        <p class="dim" style="margin:0.5rem 0 0;">Fixed steps A→B→C. Predictable; nothing to react to between steps.</p>
-      </div>
-      <div class="card">
-        <strong>Loop</strong>
-        <p class="dim" style="margin:0.5rem 0 0;">Act → observe → reason → repeat until done. For real feedback and iteration.</p>
-      </div>
-    </div>
-  </section>
-
+  <!-- BLOG -->
   {posts.length > 0 && (
-    <section class="container">
-      <h2>Latest from the blog</h2>
-      <div class="grid grid-3" style="margin-top:1rem;">
-        {posts.map((p) => (
-          <a class="card" href={`/blog/${p.id}`}>
-            <strong>{p.data.title}</strong>
-            <p class="dim" style="margin:0.5rem 0 0;font-size:0.92rem;">{p.data.description}</p>
+    <section class="container section">
+      <div style="max-width:62ch;">
+        <p class="kicker">field notes</p>
+        <h2>Recent writing</h2>
+      </div>
+      <div class="postlist" style="margin-top:1.4rem;">
+        {posts.slice(0, 4).map((p) => (
+          <a href={`/blog/${p.id}`}>
+            <h3 class="pt">{p.data.title}</h3>
+            <p class="pd">{p.data.description}</p>
+            <span class="pm">{fmt(p.data.pubDate)}{p.data.tags.length ? `  ·  ${p.data.tags.join(", ")}` : ""}</span>
           </a>
         ))}
       </div>
+      <p style="margin-top:1.2rem;"><a href="/blog">Everything in the blog →</a></p>
     </section>
   )}
 
-  <section class="container" style="margin-top:2.5rem;">
-    <div class="card center" style="background:var(--bg-soft);">
-      <p class="dim" style="margin:0;">
-        Grounded in work by
-        <a href="https://addyosmani.com/blog/loop-engineering/" rel="nofollow">Addy Osmani</a>,
-        Boris Cherny / Anthropic, <a href="https://www.langchain.com/blog/the-art-of-loop-engineering" rel="nofollow">LangChain</a>,
-        and <a href="https://github.com/cobusgreyling/loop-engineering" rel="nofollow">Cobus Greyling</a>.
-      </p>
-    </div>
+  <!-- CREDITS -->
+  <section class="container">
+    <p class="byline" style="max-width:62ch;">
+      Built on the people who named this work: Addy Osmani, Boris Cherny and the Claude Code team at Anthropic,
+      the LangChain crew, and Cobus Greyling. Their links live on the
+      <a href="/about">about page</a>.
+    </p>
   </section>
 </BaseLayout>

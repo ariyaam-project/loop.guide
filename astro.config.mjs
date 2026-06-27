@@ -4,7 +4,7 @@ import cloudflare from "@astrojs/cloudflare";
 import sitemap from "@astrojs/sitemap";
 
 // Update this to the production domain before deploy.
-const SITE = "https://loop.guide";
+const SITE = "https://loops.guide";
 
 export default defineConfig({
   site: SITE,

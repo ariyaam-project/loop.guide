@@ -1,0 +1,19 @@
+---
+import PatternFlowDiagram from "./PatternFlowDiagram.astro";
+import { PATTERNS } from "../lib/patterns";
+---
+<div class="system-visual pattern-atlas" aria-label="Atlas of loop engineering patterns">
+  <div class="system-bar">
+    <span>pattern atlas</span>
+    <span class="system-bar-note">seven reusable loop shapes</span>
+  </div>
+  <div class="atlas-grid">
+    {PATTERNS.map((pattern, index) => (
+      <a class="atlas-tile" href={`/patterns/${pattern.slug}`}>
+        <PatternFlowDiagram pattern={pattern} index={index} variant="mini" />
+        <span>{String(index + 1).padStart(2, "0")}</span>
+        <strong>{pattern.name.replace(" Loop", "")}</strong>
+      </a>
+    ))}
+  </div>
+</div>

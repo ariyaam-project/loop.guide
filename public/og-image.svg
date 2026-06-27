@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="loops.guide social preview">
+  <rect width="1200" height="630" fill="#F7F8F5"/>
+  <path d="M0 96h1200M0 160h1200M0 224h1200M0 288h1200M0 352h1200M0 416h1200M0 480h1200M0 544h1200" stroke="#D9DFD5" stroke-width="1"/>
+  <path d="M96 0v630M192 0v630M288 0v630M384 0v630M480 0v630M576 0v630M672 0v630M768 0v630M864 0v630M960 0v630M1056 0v630" stroke="#E3E8E0" stroke-width="1"/>
+
+  <g transform="translate(76 62)">
+    <rect x="0" y="0" width="42" height="42" rx="9" fill="#171B21" stroke="#3B4654" stroke-width="1.5"/>
+    <path d="M9.6 21c2.9-6.2 7.1-6.9 12.1-.3l1.6 2.1 1.6-2.1c5-6.6 9.2-5.9 12.1.3-2.9 6.2-7.1 6.9-12.1.3l-1.6-2.1-1.6 2.1c-5 6.6-9.2 5.9-12.1-.3Z" fill="none" stroke="#F7F8F5" stroke-width="3.4" stroke-linejoin="round"/>
+    <circle cx="23.3" cy="21" r="2.7" fill="#7DA2FF"/>
+    <text x="58" y="29" fill="#171B21" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="27" font-weight="760">loops<tspan fill="#2457D6">.</tspan>guide</text>
+  </g>
+
+  <text x="76" y="210" fill="#171B21" font-family="Fraunces, Georgia, serif" font-size="76" font-weight="600">Loop engineering,</text>
+  <text x="76" y="292" fill="#171B21" font-family="Fraunces, Georgia, serif" font-size="76" font-weight="600">made practical.</text>
+  <text x="80" y="348" fill="#5D6670" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="26">Learn how AI agents act, observe, verify, and repeat.</text>
+
+  <g transform="translate(744 132)">
+    <rect width="366" height="326" rx="8" fill="#FFFEFA" stroke="#171B21" stroke-width="2"/>
+    <rect width="366" height="54" rx="8" fill="#F0F3EE"/>
+    <path d="M0 54h366" stroke="#D6DCD2" stroke-width="1"/>
+    <circle cx="26" cy="27" r="5" fill="#89919A"/>
+    <circle cx="44" cy="27" r="5" fill="#B66B00"/>
+    <circle cx="62" cy="27" r="5" fill="#0F7D5D"/>
+    <text x="92" y="35" fill="#5D6670" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">task triage</text>
+
+    <g transform="translate(24 86)">
+      <text x="0" y="0" fill="#171B21" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" font-weight="650">Translate release notes</text>
+      <text x="0" y="29" fill="#5D6670" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16">single transform</text>
+      <rect x="222" y="-22" width="96" height="31" rx="6" fill="#DFE8FF"/>
+      <text x="239" y="-1" fill="#173F9D" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">PROMPT</text>
+    </g>
+    <path d="M24 150h318" stroke="#D6DCD2" stroke-width="1"/>
+
+    <g transform="translate(24 196)">
+      <text x="0" y="0" fill="#171B21" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" font-weight="650">API, auth, docs</text>
+      <text x="0" y="29" fill="#5D6670" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16">fixed sequence</text>
+      <rect x="234" y="-22" width="84" height="31" rx="6" fill="#F0E6FF"/>
+      <text x="253" y="-1" fill="#6840A0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">CHAIN</text>
+    </g>
+    <path d="M24 260h318" stroke="#D6DCD2" stroke-width="1"/>
+
+    <g transform="translate(24 286)">
+      <text x="0" y="0" fill="#171B21" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" font-weight="650">Fix failing tests</text>
+      <text x="0" y="29" fill="#5D6670" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16">observe, adjust, retry</text>
+      <rect x="245" y="-22" width="73" height="31" rx="6" fill="#DFF4EB"/>
+      <text x="262" y="-1" fill="#0F6C52" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">LOOP</text>
+    </g>
+  </g>
+</svg>

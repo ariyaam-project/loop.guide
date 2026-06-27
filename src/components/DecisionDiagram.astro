@@ -1,0 +1,36 @@
+<div class="system-visual decision-diagram" aria-label="Decision diagram for choosing prompt, chain, or loop">
+  <div class="system-bar">
+    <span>decision test</span>
+    <span class="system-bar-note">choose the lightest pattern</span>
+  </div>
+  <div class="decision-body">
+    <div class="decision-question">
+      <span class="decision-dot"></span>
+      <strong>Does acting create information the agent should use next?</strong>
+    </div>
+
+    <div class="decision-path path-single">
+      <span class="verdict-chip vc-single">PROMPT</span>
+      <div>
+        <strong>No feedback</strong>
+        <small>One clear transform. One answer out.</small>
+      </div>
+    </div>
+
+    <div class="decision-path path-chain">
+      <span class="verdict-chip vc-chain">CHAIN</span>
+      <div>
+        <strong>Known sequence</strong>
+        <small>Several fixed steps, decided in advance.</small>
+      </div>
+    </div>
+
+    <div class="decision-path path-loop">
+      <span class="verdict-chip vc-loop">LOOP</span>
+      <div>
+        <strong>Real feedback</strong>
+        <small>Act, observe, revise, and repeat until done.</small>
+      </div>
+    </div>
+  </div>
+</div>

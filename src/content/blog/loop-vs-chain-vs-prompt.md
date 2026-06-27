@@ -1,6 +1,6 @@
 ---
 title: "Loop vs chain vs prompt: which do you actually need?"
-description: "A practical decision guide for choosing between a single prompt, a fixed chain, and an agent loop — with the exact signals that tip you from one to the next."
+description: "A practical decision guide for choosing between a single prompt, a fixed chain, and an agent loop, with the exact signals that tip you from one to the next."
 pubDate: 2026-06-23
 tags: ["fundamentals", "decision"]
 ---
@@ -34,7 +34,7 @@ Chains are predictable and easy to trace. The tell: you can write the steps down
 Act → observe → reason → repeat. Use it when there is **real feedback to react to, or genuine iteration**.
 
 - Fix the failing tests and keep going until they pass. (verification + iteration)
-- Debug this error — you don't know the cause yet. (exploration)
+- Debug this error, where you don't know the cause yet. (exploration)
 - Refactor this module without breaking anything. (multi-step + verify each step)
 - Every morning, triage new issues and draft replies. (event-driven)
 

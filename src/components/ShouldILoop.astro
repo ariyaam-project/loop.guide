@@ -16,7 +16,7 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
 
       <div class="examples" data-examples>
         <button type="button" class="chip" data-ex="Translate this paragraph into French.">single-prompt example</button>
-        <button type="button" class="chip" data-ex="First scaffold the API, then add auth, then write the README — in order.">chain example</button>
+        <button type="button" class="chip" data-ex="First scaffold the API, then add auth, then write the README, in that order.">chain example</button>
         <button type="button" class="chip" data-ex="Fix the failing tests in this repo and keep iterating until they all pass.">loop example</button>
       </div>
 
@@ -26,7 +26,7 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
           <label><input type="checkbox" data-sig="multiStep" /> Multiple steps where later steps depend on earlier results</label>
           <label><input type="checkbox" data-sig="externalFeedback" /> There's real feedback to react to (errors, data, API)</label>
           <label><input type="checkbox" data-sig="deterministicSingle" /> It's one deterministic transform / a single answer</label>
-          <label><input type="checkbox" data-sig="ambiguity" /> Ambiguous — likely needs human judgment</label>
+          <label><input type="checkbox" data-sig="ambiguity" /> Ambiguous, and likely to need human judgment</label>
         </div>
       )}
 
@@ -83,15 +83,27 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
     async function analyze() {
       const task = taskEl.value.trim();
       if (!task) { resultEl.innerHTML = '<p class="dim">Type a task first.</p>'; return; }
-      resultEl.innerHTML = '<p class="skeleton">Analyzing the loop…</p>';
+      resultEl.innerHTML = '<p class="skeleton">Analyzing…</p>';
       try {
         const res = await fetch("/api/should-i-loop", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ task, signals: collectSignals() }),
         });
+        const data = await res.json();
+        if (res.status === 422 || data.verdict === "rejected") {
+          const reason = data.reasons?.[0] ?? "That does not look like an AI automation task.";
+          resultEl.innerHTML = `
+            <p class="dim" style="margin:0;">
+              <strong>Not an AI automation task.</strong> ${esc(reason)}
+              <br />
+              <span style="font-size:0.85rem;">Describe work you want an AI agent to do, such as fixing tests, monitoring a feed, or processing documents.</span>
+            </p>
+          `;
+          return;
+        }
         if (!res.ok) throw new Error("bad status");
-        render(await res.json());
+        render(data);
       } catch {
         resultEl.innerHTML =
           '<p class="dim">Couldn\'t reach the analyzer endpoint (this happens on a pure static preview). ' +
@@ -112,7 +124,7 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
         <h3 style="margin:0.75rem 0 0.25rem;">Why</h3>
         <ul class="reasons">${reasons}</ul>
         <h3 style="margin:1rem 0 0.25rem;">Recommended pattern</h3>
-        <p style="margin:0 0 0.4rem;"><a href="${d.pattern.href}"><strong>${esc(d.pattern.name)}</strong></a> — ${esc(d.pattern.tagline)}</p>
+        <p style="margin:0 0 0.4rem;"><a href="${d.pattern.href}"><strong>${esc(d.pattern.name)}</strong></a>. ${esc(d.pattern.tagline)}</p>
         <details>
           <summary class="dim" style="cursor:pointer;font-size:0.9rem;">Starter checklist</summary>
           <ul class="reasons">${checklist}</ul>
@@ -121,7 +133,7 @@ const id = "sil-" + Math.random().toString(36).slice(2, 8);
       `;
       const copyBtn = resultEl.querySelector<HTMLButtonElement>("[data-copy]");
       copyBtn?.addEventListener("click", () => {
-        const text = `Should I Loop? → ${LABEL[v]} (${d.confidence}%)\nWhy: ${(d.reasons||[]).join(" ")}\nPattern: ${d.pattern.name} — ${d.pattern.tagline}\nvia loop.guide`;
+        const text = `Should I Loop? ${LABEL[v]} (${d.confidence}%)\nWhy: ${(d.reasons||[]).join(" ")}\nPattern: ${d.pattern.name}. ${d.pattern.tagline}\nvia loops.guide`;
         navigator.clipboard?.writeText(text);
         copyBtn.textContent = "Copied ✓";
         setTimeout(() => (copyBtn.textContent = "Copy result"), 1500);

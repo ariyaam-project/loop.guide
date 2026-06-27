@@ -1,7 +1,7 @@
-export const SITE_TITLE = "loop.guide";
+export const SITE_TITLE = "loops.guide";
 export const SITE_DESCRIPTION =
-  "Should your AI task be a loop? loop.guide is the hub + tool for loop engineering — decide when to use an agent loop, and get the right pattern.";
-export const SITE_URL = "https://loop.guide";
+  "loops.guide explains loop engineering: how AI agents act, observe, verify, and repeat, and when to use a prompt, chain, or feedback loop.";
+export const SITE_URL = "https://loops.guide";
 export const SOCIAL = {
   github: "https://github.com/",
   x: "https://x.com/",

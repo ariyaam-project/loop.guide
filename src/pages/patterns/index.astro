@@ -1,25 +1,30 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import PatternFlowDiagram from "../../components/PatternFlowDiagram.astro";
 import { PATTERNS } from "../../lib/patterns";
 ---
 <BaseLayout
   title="Loop Patterns"
   description="The seven core loop-engineering patterns: retry, plan-execute-verify, explore-narrow, human-in-the-loop, verification, event-driven, and hill-climbing."
 >
-  <section class="container" style="padding-top:2.5rem;">
+  <section class="container page-hero">
+    <span class="eyebrow">the catalogue</span>
     <h1>Loop patterns</h1>
-    <p class="lead">Seven patterns that cover almost every agent loop. Each says when to use it, when not to, and how to start.</p>
-    <div class="grid grid-2" style="margin-top:1.5rem;">
-      {PATTERNS.map((p) => (
-        <a class="card" href={`/patterns/${p.slug}`}>
-          <div style="display:flex;justify-content:space-between;gap:0.5rem;align-items:center;">
+    <p class="lead">Seven patterns cover almost every agent loop. Each one is honest about when to use it, when to walk away, and how to start.</p>
+    <div class="grid grid-2 pattern-card-grid">
+      {PATTERNS.map((p, index) => (
+        <a class="card pattern-card" href={`/patterns/${p.slug}`}>
+          <PatternFlowDiagram pattern={p} index={index} variant="card" />
+          <div class="pattern-card-body">
+            <div style="display:flex;justify-content:space-between;gap:0.5rem;align-items:center;">
             <strong>{p.name}</strong>
             <span>
               <span class="tag">{p.cost} cost</span>
               <span class="tag">{p.risk} risk</span>
             </span>
+            </div>
+            <p class="dim" style="margin:0.6rem 0 0;">{p.tagline}</p>
           </div>
-          <p class="dim" style="margin:0.6rem 0 0;">{p.tagline}</p>
         </a>
       ))}
     </div>

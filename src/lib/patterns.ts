@@ -41,7 +41,7 @@ export const PATTERNS: Pattern[] = [
     ],
     anatomy: ["Attempt", "Check pass/fail", "If fail → vary approach & retry", "Stop on success or max attempts"],
     watchOuts: [
-      "Infinite retries with no strategy change — vary the next attempt.",
+      "Infinite retries with no strategy change. Vary the next attempt.",
       "Set a max-attempt ceiling and a hard stop.",
     ],
     starter: [
@@ -68,7 +68,7 @@ export const PATTERNS: Pattern[] = [
     ],
     anatomy: ["Generate a plan", "Execute one step", "Verify the step", "Revise plan if needed", "Next step / done"],
     watchOuts: [
-      "Over-commitment to a bad plan — revise, don't push through.",
+      "Over-commitment to a bad plan. Revise it, don't push through.",
       "Verification that only checks 'it compiles', not 'it works'.",
     ],
     starter: [
@@ -95,7 +95,7 @@ export const PATTERNS: Pattern[] = [
     ],
     anatomy: ["Branch into candidate approaches", "Probe each cheaply", "Score intermediate results", "Prune & commit to the best"],
     watchOuts: [
-      "Context explosion — running many paths is expensive.",
+      "Context explosion. Running many paths in parallel is expensive.",
       "Prune early and often.",
     ],
     starter: [
@@ -147,7 +147,7 @@ export const PATTERNS: Pattern[] = [
     ],
     anatomy: ["Agent produces output", "Grader scores vs rubric", "If fail → return with feedback", "Retry until pass or budget"],
     watchOuts: [
-      "Adds latency and cost per run — worth it when quality matters.",
+      "Adds latency and cost per run. Worth it when quality matters.",
       "A weak rubric gives false confidence.",
     ],
     starter: [
@@ -173,7 +173,7 @@ export const PATTERNS: Pattern[] = [
     ],
     anatomy: ["Event/trigger fires", "Agent runs (often wrapping inner loops)", "Update the real system", "Wait for next event"],
     watchOuts: [
-      "Unattended runs make unattended mistakes — add gates.",
+      "Unattended runs make unattended mistakes. Add gates.",
       "Idempotency: handle duplicate/late events.",
     ],
     starter: [
@@ -200,7 +200,7 @@ export const PATTERNS: Pattern[] = [
     anatomy: ["Collect traces from runs", "Analysis agent finds issues", "Rewrite prompts/tools/graders", "Redeploy & measure"],
     watchOuts: [
       "Route harness changes through human review before deploy.",
-      "Needs observability first — no traces, no climbing.",
+      "Needs observability first. No traces, no climbing.",
     ],
     starter: [
       "Goal: a metric the harness should improve.",

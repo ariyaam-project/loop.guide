@@ -1,5 +1,5 @@
 // Heuristic "Should I Loop?" classifier.
-// Pure, dependency-free, deterministic — the always-on Layer 1 of the agent.
+// Pure, dependency-free, deterministic. This is the always-on Layer 1 of the agent.
 // (Layer 2 LLM refinement lives in the API route and builds on this output.)
 
 import type { PatternSlug } from "./patterns";
@@ -120,13 +120,13 @@ export function analyze(input: AnalyzeInput): AnalyzeResult {
   let loop = 0;
   const reasons: string[] = [];
 
-  if (signals.iteration) { loop += 2.5; reasons.push("You describe iterating/repeating until something is right — that's a loop by definition."); }
+  if (signals.iteration) { loop += 2.5; reasons.push("You describe iterating until something is right, which is a loop by definition."); }
   if (signals.needsVerification) { loop += 2; reasons.push("The output needs to be verified (tests/checks), so the agent should act → check → revise."); }
-  if (signals.externalFeedback) { loop += 1.5; reasons.push("There's real feedback to react to (errors, data, API/file results) — wasted unless the agent loops on it."); }
+  if (signals.externalFeedback) { loop += 1.5; reasons.push("There's real feedback to react to (errors, data, file results), which is wasted unless the agent loops on it."); }
   if (signals.multiStep) { loop += 1.5; reasons.push("It's multi-step with dependencies, so later steps depend on observing earlier ones."); }
-  if (signals.scheduled) { loop += 3; reasons.push("It runs on a schedule/trigger — an event-driven loop, not a one-shot call."); }
-  if (signals.improvement) { loop += 1; reasons.push("You want it to improve over repeated runs — that needs an outer (hill-climbing) loop."); }
-  if (signals.risky) { loop += 1; reasons.push("An irreversible/sensitive action is involved — run it in a loop with a human gate."); }
+  if (signals.scheduled) { loop += 3; reasons.push("It runs on a schedule or trigger, so it's an event-driven loop, not a one-shot call."); }
+  if (signals.improvement) { loop += 1; reasons.push("You want it to improve over repeated runs, which needs an outer hill-climbing loop."); }
+  if (signals.risky) { loop += 1; reasons.push("An irreversible or sensitive action is involved, so run it in a loop with a human gate."); }
   if (signals.ambiguity) { loop += 0.5; reasons.push("Ambiguity/judgment is involved, which usually needs iteration and a human gate."); }
 
   let single = 0;
@@ -139,7 +139,7 @@ export function analyze(input: AnalyzeInput): AnalyzeResult {
     verdict = "single";
     reasons.length = 0;
     reasons.push("This looks like one deterministic transform with a single answer.");
-    reasons.push("No verification, iteration, or external feedback to react to — a single well-crafted prompt should do it.");
+    reasons.push("No verification, iteration, or external feedback to react to, so a single well-crafted prompt should do it.");
   } else if (signals.multiStep && loop < 3.5 && !signals.iteration && !signals.needsVerification && !signals.externalFeedback) {
     verdict = "chain";
     reasons.length = 0;
@@ -149,11 +149,11 @@ export function analyze(input: AnalyzeInput): AnalyzeResult {
     verdict = "loop";
   } else if (loop >= 1.5) {
     verdict = "borderline";
-    reasons.unshift("Signals are mixed — a loop helps but isn't clearly required. Start simple and add a loop only if single-shot output falls short.");
+    reasons.unshift("Signals are mixed. A loop helps but isn't clearly required, so start simple and add one only if a single shot keeps falling short.");
   } else {
     verdict = "single";
     if (reasons.length === 0) {
-      reasons.push("No strong signals for iteration, verification, or feedback were detected — try a single prompt first.");
+      reasons.push("No strong signals for iteration, verification, or feedback were detected, so try a single prompt first.");
     }
   }
 

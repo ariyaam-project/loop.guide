@@ -11,7 +11,7 @@ const jsonLd = {
       name: "How do I know if my AI task needs a loop?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Use a loop when the agent has feedback to react to — it must run and verify its own output, the task is multi-step with dependencies, or it should iterate until a condition is met. Use a single prompt for one deterministic transform, and a fixed chain for ordered steps with nothing to react to.",
+        text: "Use a loop when the agent has feedback to react to. That covers running and verifying its own output, multi-step work with dependencies, or iterating until a condition is met. Use a single prompt for one deterministic transform, and a fixed chain for ordered steps with nothing to react to.",
       },
     },
     {
@@ -27,28 +27,29 @@ const jsonLd = {
 ---
 <BaseLayout
   title="Should I Loop?"
-  description="Describe your AI task. Get a verdict — loop, single prompt, or chain — with the reasoning and the recommended loop pattern."
+  description="Describe your AI task. Get a verdict (loop, single prompt, or chain) with the reasoning and the recommended pattern."
   jsonLd={jsonLd}
 >
-  <section class="container" style="padding-top:2.5rem;">
-    <h1>Should I Loop?</h1>
-    <p class="lead" style="margin-bottom:1.75rem;">
-      Describe the task. We'll tell you whether it needs an agent loop, a single prompt, or a fixed chain —
-      and hand you the pattern to use.
+  <section class="container page-hero">
+    <p class="kicker">the tool</p>
+    <h1>Should I loop?</h1>
+    <p class="lead" style="margin-bottom:1.9rem;">
+      Describe the task the way you would say it out loud. You get a verdict, loop, single prompt, or chain,
+      with the reasoning and the pattern to build it.
     </p>
     <ShouldILoop />
   </section>
 
-  <section class="container" style="margin-top:3rem;">
+  <section class="container section">
     <h2>How the verdict works</h2>
     <div class="grid grid-2 prose">
       <div>
-        <p><strong>Single prompt</strong> — one deterministic transform with a single answer (translate, summarize, format). No feedback to react to.</p>
-        <p><strong>Chain</strong> — multiple steps, but fixed and ordered, with nothing to observe between them. Predictable and simpler than a loop.</p>
+        <p><strong>Single prompt.</strong> One deterministic transform with a single answer, like translate, summarize, or format. Nothing to react to.</p>
+        <p><strong>Chain.</strong> Several steps, but fixed and ordered, with nothing surprising between them. Predictable, and simpler than a loop.</p>
       </div>
       <div>
-        <p><strong>Loop</strong> — the agent acts, observes a real result (tests, errors, data), reasons, and repeats until done. Use it when there's genuine feedback or iteration.</p>
-        <p><strong>Borderline</strong> — signals are mixed. Start with the simplest option and add a loop only if single-shot output falls short.</p>
+        <p><strong>Loop.</strong> The agent acts, observes a real result (tests, errors, data), reasons, and repeats until done. Use it when there is genuine feedback or iteration.</p>
+        <p><strong>Borderline.</strong> Signals are mixed. Start with the simplest option, and add a loop only if a single shot keeps falling short.</p>
       </div>
     </div>
   </section>

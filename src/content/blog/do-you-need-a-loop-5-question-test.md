@@ -1,6 +1,6 @@
 ---
 title: "Do you need a loop? A 5-question test"
-description: "Five yes/no questions that tell you whether your AI task needs an agent loop — and which loop pattern to reach for if it does."
+description: "Five yes/no questions that tell you whether your AI task needs an agent loop, and which loop pattern to reach for if it does."
 pubDate: 2026-06-26
 tags: ["decision", "patterns"]
 ---
@@ -9,7 +9,7 @@ You don't need a framework to decide whether a task needs a loop. You need five 
 
 ## 1. Does the agent need to verify its own output?
 
-If success means passing a test, matching a schema, or clearing a check the model can run, you need a loop — act, check, revise. A prompt can't confirm its own work.
+If success means passing a test, matching a schema, or clearing a check the model can run, you need a loop: act, check, revise. A prompt can't confirm its own work.
 
 → Leans **loop**. Pattern: [Verification / Evaluator](/patterns/verification) or [Retry](/patterns/retry).
 
@@ -41,4 +41,4 @@ If it's triggered by events or a schedule, you want an [Event-Driven](/patterns/
 - **Yeses only on "fixed multiple steps"** → a chain, not a loop.
 - **One or more yeses on verification, feedback, iteration, ambiguity, or scheduling** → a loop, and the questions above point you straight at the pattern.
 
-This is exactly the logic behind the [Should I Loop?](/should-i-loop) tool — it reads these signals from your task description and returns the verdict plus the recommended pattern. [Try it on a real task.](/should-i-loop)
+This is exactly the logic behind the [Should I Loop?](/should-i-loop) tool. It reads these signals from your task description and returns the verdict plus the recommended pattern. [Try it on a real task.](/should-i-loop)

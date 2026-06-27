@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import PatternFlowDiagram from "../../components/PatternFlowDiagram.astro";
 import { PATTERNS, getPattern, type PatternSlug } from "../../lib/patterns";
 
 export function getStaticPaths() {
@@ -8,6 +9,7 @@ export function getStaticPaths() {
 
 const { slug } = Astro.params;
 const p = getPattern(slug as PatternSlug);
+const patternIndex = PATTERNS.findIndex((pattern) => pattern.slug === p.slug);
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -18,34 +20,41 @@ const jsonLd = {
 };
 ---
 <BaseLayout title={p.name} description={p.tagline} jsonLd={jsonLd}>
-  <article class="container prose" style="padding-top:2.5rem;">
-    <p><a href="/patterns">← All patterns</a></p>
-    <h1>{p.name}</h1>
-    <p class="lead">{p.tagline}</p>
-    <p>
-      <span class="tag">{p.cost} cost</span>
-      <span class="tag">{p.risk} risk</span>
-    </p>
+  <article class="container pattern-detail">
+    <p class="pattern-back"><a href="/patterns">← All patterns</a></p>
+    <div class="pattern-detail-hero">
+      <div>
+        <h1>{p.name}</h1>
+        <p class="lead">{p.tagline}</p>
+        <p>
+          <span class="tag">{p.cost} cost</span>
+          <span class="tag">{p.risk} risk</span>
+        </p>
+      </div>
+      <PatternFlowDiagram pattern={p} index={patternIndex} variant="full" />
+    </div>
 
-    <h2>When to use it</h2>
-    <ul>{p.whenToUse.map((x) => <li>{x}</li>)}</ul>
+    <div class="prose narrow">
+      <h2>When to use it</h2>
+      <ul>{p.whenToUse.map((x) => <li>{x}</li>)}</ul>
 
-    <h2>When NOT to use it</h2>
-    <ul>{p.whenNotToUse.map((x) => <li>{x}</li>)}</ul>
+      <h2>When NOT to use it</h2>
+      <ul>{p.whenNotToUse.map((x) => <li>{x}</li>)}</ul>
 
-    <h2>Anatomy</h2>
-    <pre><code>{p.anatomy.join("  →  ")}</code></pre>
+      <h2>Anatomy</h2>
+      <pre><code>{p.anatomy.join("  →  ")}</code></pre>
 
-    <h2>Watch-outs</h2>
-    <ul>{p.watchOuts.map((x) => <li>{x}</li>)}</ul>
+      <h2>Watch-outs</h2>
+      <ul>{p.watchOuts.map((x) => <li>{x}</li>)}</ul>
 
-    <h2>Starter checklist</h2>
-    <ul>{p.starter.map((x) => <li>{x}</li>)}</ul>
+      <h2>Starter checklist</h2>
+      <ul>{p.starter.map((x) => <li>{x}</li>)}</ul>
 
-    <div class="card" style="margin-top:2rem;background:var(--bg-soft);">
-      <strong>Not sure this is the right loop?</strong>
-      <p class="dim" style="margin:0.4rem 0 0.8rem;">Describe your task and let the tool recommend a pattern.</p>
-      <a class="btn btn-primary" href="/should-i-loop">Try “Should I Loop?”</a>
+      <div class="card" style="margin-top:2rem;background:var(--bg-soft);">
+        <strong>Not sure this is the right loop?</strong>
+        <p class="dim" style="margin:0.4rem 0 0.8rem;">Describe your task and let the tool recommend a pattern.</p>
+        <a class="btn btn-primary" href="/should-i-loop">Try “Should I Loop?”</a>
+      </div>
     </div>
   </article>
 </BaseLayout>

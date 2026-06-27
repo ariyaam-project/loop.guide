@@ -21,16 +21,16 @@ const jsonLd = {
 };
 ---
 <BaseLayout title={post.data.title} description={post.data.description} jsonLd={jsonLd}>
-  <article class="container prose" style="padding-top:2.5rem;">
+  <article class="container prose narrow" style="padding-top:3rem;">
     <p><a href="/blog">← All posts</a></p>
-    <h1>{post.data.title}</h1>
+    <h1 style="font-size:clamp(2rem,4.4vw,3rem);">{post.data.title}</h1>
     <p class="dim mono" style="font-size:0.85rem;">
       {fmt(post.data.pubDate)}{post.data.updatedDate && ` · updated ${fmt(post.data.updatedDate)}`}
     </p>
     <Content />
     <div class="card" style="margin-top:2.5rem;background:var(--bg-soft);">
       <strong>Was this useful?</strong>
-      <p class="dim" style="margin:0.4rem 0 0.8rem;">Put it into practice — describe your task and get a verdict.</p>
+      <p class="dim" style="margin:0.4rem 0 0.8rem;">Put it into practice. Describe your task and get a verdict.</p>
       <a class="btn btn-primary" href="/should-i-loop">Try “Should I Loop?”</a>
     </div>
   </article>

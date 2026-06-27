@@ -1,12 +1,12 @@
 ---
 title: "What is loop engineering?"
-description: "Loop engineering is the practice of designing the systems that prompt and orchestrate AI agents — act, observe, reason, repeat — instead of hand-prompting them one message at a time."
+description: "Loop engineering is the practice of designing the systems that prompt and orchestrate AI agents (act, observe, reason, repeat) instead of hand-prompting them one message at a time."
 pubDate: 2026-06-20
 updatedDate: 2026-06-27
 tags: ["fundamentals", "definitions"]
 ---
 
-**Loop engineering is the practice of designing, operating, and improving the feedback loops that let an AI agent do real work — act, observe the result, reason about it, and repeat until a goal is met.** The shift is in where you add value: instead of typing each next instruction by hand, you design the system that prompts the agent for you.
+**Loop engineering is the practice of designing, operating, and improving the feedback loops that let an AI agent do real work. The agent acts, observes the result, reasons about it, and repeats until a goal is met.** The shift is in where you add value: instead of typing each next instruction by hand, you design the system that prompts the agent for you.
 
 The term crystallized in June 2026. As Boris Cherny, who leads Claude Code at Anthropic, put it: "I don't prompt Claude anymore. I have loops running that prompt Claude and figure out what to do. My job is to write loops." Addy Osmani and Peter Steinberger framed the same move: stop prompting agents, start designing the loops that prompt them.
 
@@ -18,17 +18,17 @@ This traces back to the **ReAct pattern** (Reason + Act) from research at Prince
 
 ## Loop vs chain vs prompt
 
-A **prompt** is one shot in, one answer out. A **chain** is linear — step A leads to B leads to C, fixed and predictable. A **loop** is dynamic: the agent can retry, revise its approach, and only move on once feedback says it's done. The quality difference between agents usually comes down to loop design, not the base model.
+A **prompt** is one shot in, one answer out. A **chain** is linear: step A leads to B leads to C, fixed and predictable. A **loop** is dynamic, so the agent can retry, revise its approach, and only move on once feedback says it's done. The quality difference between agents usually comes down to loop design, not the base model.
 
 ## What a good loop needs
 
 Five things make a loop work rather than spin:
 
-1. **A clear goal with a testable stop condition** — "all unit tests pass," not "make it better."
-2. **Tools to act and observe** — code execution, file access, a shell, test runners.
-3. **Context management** — summarize prior iterations so you don't overflow the window or repeat failed attempts.
-4. **Termination logic** — success exits, failure exits ("after N iterations with no progress, escalate"), and tool-call budgets.
-5. **Error handling that adapts** — distinguish recoverable errors from hard blockers; never re-run the same failed approach.
+1. **A clear goal with a testable stop condition.** "All unit tests pass," not "make it better."
+2. **Tools to act and observe.** Code execution, file access, a shell, test runners.
+3. **Context management.** Summarize prior iterations so you don't overflow the window or repeat failed attempts.
+4. **Termination logic.** Success exits, failure exits ("after N iterations with no progress, escalate"), and tool-call budgets.
+5. **Error handling that adapts.** Distinguish recoverable errors from hard blockers, and never re-run the same failed approach.
 
 ## Stacking loops
 
@@ -36,6 +36,6 @@ The most useful mental model stacks four levels: the **agent loop** (call tools 
 
 ## The honest caveat
 
-Loop engineering amplifies judgment — good and bad. Token costs explode with long-running, sub-agent-heavy loops. Verification is still on you: unattended loops make unattended mistakes. As Osmani warns, build the loop like someone who intends to stay the engineer, not just the person who presses go.
+Loop engineering amplifies judgment, both good and bad. Token costs explode with long-running, sub-agent-heavy loops. Verification is still on you: unattended loops make unattended mistakes. As Osmani warns, build the loop like someone who intends to stay the engineer, not just the person who presses go.
 
 Not sure whether your task even needs a loop? [Run it through the tool.](/should-i-loop)

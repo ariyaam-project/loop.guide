@@ -1,17 +1,18 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
-<BaseLayout title="About" description="What loop.guide is, and the method behind the Should I Loop? verdict.">
-  <article class="container prose" style="padding-top:2.5rem;">
-    <h1>About loop.guide</h1>
-    <p class="lead">A hub and a tool for loop engineering — the discipline of designing the systems that prompt and orchestrate AI agents, instead of hand-prompting them.</p>
+<BaseLayout title="About" description="What loops.guide is, and the method behind the Should I Loop? verdict.">
+  <article class="container prose narrow" style="padding-top:3rem;">
+    <span class="eyebrow">about</span>
+    <h1 style="font-size:clamp(2rem,4.4vw,3rem);">A calmer way to decide</h1>
+    <p class="lead">loops.guide is a field guide and a tool for loop engineering: the craft of designing the systems that prompt and orchestrate AI agents, instead of hand‑prompting them one message at a time.</p>
 
     <h2>Why this exists</h2>
     <p>The term <em>loop engineering</em> was coined in June 2026, the week Addy Osmani published his essay and Peter Steinberger compressed it to a sentence: stop prompting your agents, start designing the loops that prompt them. The leverage moved from crafting prompts to designing the control systems around the model.</p>
-    <p>There's plenty written about what loops <em>are</em>. There's almost nothing that helps you decide whether you need one. That's the gap loop.guide fills.</p>
+    <p>There's plenty written about what loops <em>are</em>. There's almost nothing that helps you decide whether you need one. That's the gap loops.guide fills.</p>
 
     <h2>How the verdict works</h2>
-    <p>The “Should I Loop?” tool runs in two layers. First, a transparent heuristic reads your task for signals — iteration, verification, multi-step dependencies, external feedback, ambiguity, scheduling — and produces a verdict, reasoning, and a recommended pattern. When a language model is configured, a second layer refines that result. The heuristic always runs, so you always get a sane answer, with or without an LLM.</p>
+    <p>The “Should I Loop?” tool runs in two layers. First, a transparent heuristic reads your task for the signals that actually force a loop: iteration, verification, multi-step dependencies, external feedback, ambiguity, and scheduling. It returns a verdict, the reasoning, and a recommended pattern. When a language model is configured, a second layer refines that result. The heuristic always runs, so you get a sane answer with or without an LLM.</p>
 
     <h2>Credits & sources</h2>
     <p>Grounded in public work by Addy Osmani, Boris Cherny and the Claude Code team at Anthropic, LangChain, Cobus Greyling, and Swyx's “loopcraft” framing.</p>
